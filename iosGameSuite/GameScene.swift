@@ -6,83 +6,58 @@
 //
 
 import SpriteKit
-import GameplayKit
 
-class GameScene: SKScene {
+class InfiniteJSONScene: SKScene {
     
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
+    let JSON = SKSpriteNode(imageNamed: "JSON1")
+    let JSON2 = SKSpriteNode(imageNamed: "JSON2" )
+    let title = SKLabelNode(fontNamed: "Chalkduster")
     
-    override func didMove(to view: SKView) {
+    override func didMove(to view: SKView) { // This method is called as soon as the scene appears on screen
+        title.text = "Infinte JSON"
+        title.fontSize = 45
+        title.fontColor = SKColor.cyan
         
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
+        title.position = CGPoint(x: frame.midX, y: frame.maxY - 100)
         
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
+        JSON.position = CGPoint(x:frame.midX, y:frame.midY)
+        JSON2.position = CGPoint(x: frame.midX + 100, y: frame.midY + 100)
+                
+        self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // make frame of screen an immovable edge
         
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
-    }
-    
-    
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
-    }
-    
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
+        physicsWorld.gravity = CGVector(dx: 0.0, dy: -3.0) // change gravity of the world
+        JSON.physicsBody = SKPhysicsBody(texture: JSON.texture!, size: JSON.texture!.size()) // add a physics body to JSON
+        JSON.physicsBody!.restitution = 1.2 // JSON will bounce back with a lot of force
+        JSON.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 5.0)))
+        
+        JSON2.physicsBody = SKPhysicsBody(texture: JSON2.texture!, size: JSON2.texture!.size())
+        JSON2.physicsBody!.restitution = 1.2
+        JSON2.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 5.0)))
+        
+        addChild(JSON)
+        addChild(JSON2)
+        addChild(title)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
+        title.physicsBody = SKPhysicsBody(rectangleOf: title.frame.size)
+        title.physicsBody!.restitution = 1.1
     }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-    }
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+////        texturedSpriteNode.run(SKAction.move(to: CGPoint(x: spriteNode.size.width, y: spriteNode.size.height), duration: 2.0 ))
+////        texturedSpriteNode.run(SKAction.move(to: CGPoint(x: spriteNode.size.width, y: spriteNode.size.height), duration: 2.0)) {
+////            self.texturedSpriteNode.position = CGPoint.zero
+////        }
+//        texturedSpriteNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0)))
+//
+//        if !blueNode.hasActions() {
+////            blueNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0)))
+//            blueNode.run(SKAction.group([SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0), SKAction.scale(by: 0.9, duration: 2.0)]))
+//        } else {
+//            blueNode.removeAllActions()
+//        }
+//    }
 }
+
+
