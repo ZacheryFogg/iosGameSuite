@@ -12,17 +12,30 @@ class InfiniteJSONScene: SKScene {
     let JSON = SKSpriteNode(imageNamed: "JSON1")
     let JSON2 = SKSpriteNode(imageNamed: "JSON2" )
     let title = SKLabelNode(fontNamed: "Chalkduster")
+    let score = SKLabelNode(fontNamed: "Chalkduster")
+    var playerOneScore = 0
+    var playerTwoScore = 0
     
     override func didMove(to view: SKView) { // This method is called as soon as the scene appears on screen
+        
+        //titles
+        
         title.text = "Infinte JSON"
         title.fontSize = 45
         title.fontColor = SKColor.cyan
-        
+        //title position
         title.position = CGPoint(x: frame.midX, y: frame.maxY - 100)
+        //score text
+        score.text = String(playerOneScore) + " - " + String(playerTwoScore)
+        score.position = CGPoint(x: frame.midX, y: frame.maxY - 300)
+        score.fontSize = 20
+        score.fontColor = SKColor.white
         
         JSON.position = CGPoint(x:frame.midX, y:frame.midY)
         JSON2.position = CGPoint(x: frame.midX + 100, y: frame.midY + 100)
-                
+        
+        //Physics
+        
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // make frame of screen an immovable edge
         
         physicsWorld.gravity = CGVector(dx: 0.0, dy: -3.0) // change gravity of the world
@@ -37,12 +50,35 @@ class InfiniteJSONScene: SKScene {
         addChild(JSON)
         addChild(JSON2)
         addChild(title)
+        addChild(score)
+        
         
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         title.physicsBody = SKPhysicsBody(rectangleOf: title.frame.size)
         title.physicsBody!.restitution = 1.1
+        addScorePlayerOne()
+        updateScore()
+    }
+    
+    //add score functions
+    
+    func addScorePlayerOne(){
+        playerOneScore = 1 + playerOneScore
+        updateScore()
+    }
+    
+    
+    func addScorePlayerTwo(){
+        playerTwoScore = 1 + playerTwoScore
+        updateScore()
+    }
+    
+    //update score text
+    
+    func updateScore(){
+        score.text = String(playerOneScore) + " - " + String(playerTwoScore)
     }
 //    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 ////        texturedSpriteNode.run(SKAction.move(to: CGPoint(x: spriteNode.size.width, y: spriteNode.size.height), duration: 2.0 ))

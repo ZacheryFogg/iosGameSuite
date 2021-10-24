@@ -12,12 +12,12 @@ class ButtonNode: SKSpriteNode {} // creating a class for ButtonNode will allow 
 class MenuScene: SKScene {
     let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
-    let ClayGame1 = ButtonNode(imageNamed: "DefaultIcon")
-    let ClayGame2 = ButtonNode(imageNamed: "DefaultIcon")
-    let ZachGame1 = ButtonNode(imageNamed: "DefaultIcon")
-    let ZachGame2 = ButtonNode(imageNamed: "DefaultIcon")
-    let LilKGame1 = ButtonNode(imageNamed: "DefaultIcon")
-    let LilKGame2 = ButtonNode(imageNamed: "DefaultIcon")
+    let ClayGame1 = ButtonNode(imageNamed: "cowboy")
+    let ClayGame2 = ButtonNode(imageNamed: "cowboy")
+    let ZachGame1 = ButtonNode(imageNamed: "cowboy")
+    let ZachGame2 = ButtonNode(imageNamed: "cowboy")
+    let LilKGame1 = ButtonNode(imageNamed: "cowboy")
+    let LilKGame2 = ButtonNode(imageNamed: "cowboy")
     
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
         
