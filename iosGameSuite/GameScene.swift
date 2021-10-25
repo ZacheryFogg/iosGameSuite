@@ -25,12 +25,15 @@ class InfiniteJSONScene: SKScene {
         title.fontColor = SKColor.cyan
         //title position
         title.position = CGPoint(x: frame.midX, y: frame.maxY - 100)
+        
         //score text
         score.text = String(playerOneScore) + " - " + String(playerTwoScore)
+        //score position & design
         score.position = CGPoint(x: frame.midX, y: frame.maxY - 300)
         score.fontSize = 20
         score.fontColor = SKColor.white
         
+        //JSON position
         JSON.position = CGPoint(x:frame.midX, y:frame.midY)
         JSON2.position = CGPoint(x: frame.midX + 100, y: frame.midY + 100)
         

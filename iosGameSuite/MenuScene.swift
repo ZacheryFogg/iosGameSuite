@@ -16,7 +16,7 @@ class MenuScene: SKScene {
     let ClayGame2 = ButtonNode(imageNamed: "cowboy")
     let ZachGame1 = ButtonNode(imageNamed: "cowboy")
     let ZachGame2 = ButtonNode(imageNamed: "cowboy")
-    let LilKGame1 = ButtonNode(imageNamed: "cowboy")
+    let LilKGame1 = ButtonNode(imageNamed: "log")
     let LilKGame2 = ButtonNode(imageNamed: "cowboy")
     
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
