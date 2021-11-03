@@ -29,7 +29,7 @@ class InfiniteJSONScene: SKScene {
         //score text
         score.text = String(playerOneScore) + " - " + String(playerTwoScore)
         //score position & design
-        score.position = CGPoint(x: frame.midX, y: frame.maxY - 300)
+        score.position = CGPoint(x: frame.midX, y: frame.minY + 50)
         score.fontSize = 20
         score.fontColor = SKColor.white
         
