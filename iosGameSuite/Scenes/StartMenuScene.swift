@@ -10,15 +10,18 @@ import SpriteKit
 class ButtonNode: SKSpriteNode {} // creating a class for ButtonNode will allow us to type check later... maybe
 
 class MenuScene: SKScene {
+    
+    //MARK: - Properties
     let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
-    let ClayGame1 = ButtonNode(imageNamed: "cowboy")
+    let ClayGame1 = ButtonNode(imageNamed: "ninja")
     let ClayGame2 = ButtonNode(imageNamed: "cowboy")
     let ZachGame1 = ButtonNode(imageNamed: "cowboy")
     let ZachGame2 = ButtonNode(imageNamed: "cowboy")
     let LilKGame1 = ButtonNode(imageNamed: "log")
     let LilKGame2 = ButtonNode(imageNamed: "cowboy")
     
+    //MARK: - Systems
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
         
         // Configure Title
@@ -74,12 +77,13 @@ class MenuScene: SKScene {
             let node = self.atPoint(pos)
             // Switch to determine which scene to display
             if let view = view{
-                let transition:SKTransition = SKTransition.fade(withDuration: 0.5)
+                let transition:SKTransition = SKTransition.fade(withDuration: 0.0)
                 
                 var gameScene: SKScene
                 switch node.name! {
                 case ClayGame1.name!:
-                    gameScene = InfiniteJSONScene(size: self.size)
+                    gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
+                    gameScene.scaleMode = .aspectFill
                 case ClayGame2.name!:
                     gameScene = InfiniteJSONScene(size: self.size)
                 case ZachGame1.name!:
@@ -103,3 +107,9 @@ class MenuScene: SKScene {
     
     
 }
+
+//MARK: - Configuration
+
+//extension GameScene {
+//
+//}
