@@ -69,43 +69,38 @@ class MenuScene: SKScene {
     }
     
     override func touchesBegan(_ touches : Set<UITouch>, with event: UIEvent?){
+        super.touchesBegan(touches, with: event)
+        
+        guard let touch = touches.first else {return}
+        
         // Clicking on the button will transition to next game scene
-        if let touch = touches.first {
-            let pos = touch.location(in: self)
-//            let node = self.atPoint(pos)
-//            guard let node = nodes(at: position).first(where: {$0 is ButtonNode}) as? ButtonNode else {return}
-            let node = self.atPoint(pos)
-            // Switch to determine which scene to display
-            if let view = view{
-                let transition:SKTransition = SKTransition.fade(withDuration: 0.0)
+        let node = self.atPoint(touch.location(in: self))
                 
-                var gameScene: SKScene
-                switch node.name! {
-                case ClayGame1.name!:
-                    gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
-                    gameScene.scaleMode = .aspectFill
-                case ClayGame2.name!:
-                    gameScene = InfiniteJSONScene(size: self.size)
-                case ZachGame1.name!:
-                    gameScene = InfiniteJSONScene(size: self.size)
-                case ZachGame1.name!:
-                    gameScene = InfiniteJSONScene(size: self.size)
-                case LilKGame1.name!:
-                    gameScene = InfiniteJSONScene(size: self.size)
-                case LilKGame2.name!:
-                    let temp = PostGameScene(size: self.size)
-                    temp.passGameInfo(from: InfiniteJSONScene(size: self.size), redScore: 2, blueScore: 5)
-                    gameScene = temp
-                default:
-                    gameScene = InfiniteJSONScene(size: self.size)
-                }
-                self.view?.presentScene(gameScene, transition: transition)
-            }
+        var gameScene: SKScene
+        
+        // Switch to determine which scene to display
+        switch node.name {
+            
+        case ClayGame1.name:
+            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
+            gameScene.scaleMode = .aspectFill
+        case ClayGame2.name:
+            gameScene = InfiniteJSONScene(size: self.size)
+        case ZachGame1.name:
+            gameScene = InfiniteJSONScene(size: self.size)
+        case ZachGame1.name:
+            gameScene = InfiniteJSONScene(size: self.size)
+        case LilKGame1.name:
+            gameScene = InfiniteJSONScene(size: self.size)
+        case LilKGame2.name:
+            let temp = PostGameScene(size: self.size)
+            temp.passGameInfo(from: InfiniteJSONScene(size: self.size), redScore: 2, blueScore: 5)
+            gameScene = temp
+        default:
+            return
         }
-
+        self.view?.presentScene(gameScene, transition: .doorsOpenVertical(withDuration: 0.5))
     }
-    
-    
 }
 
 //MARK: - Configuration

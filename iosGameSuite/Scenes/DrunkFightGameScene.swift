@@ -80,10 +80,29 @@ class DrunkFightGameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        if !isPaused {
-            if playerIsOnGround {
-                playerIsOnGround = false
-                playerVelocityY = -25.0
+        
+        guard let touch = touches.first else { return }
+        
+        let node = atPoint(touch.location(in: self))
+        
+        if node.name == "pause" {
+            if isPaused { return }
+            createPanel()
+            lastUpdateTime = 0.0
+            dt = 0.0
+            isPaused = true
+            
+        } else if node.name == "resume" {
+            containerNode.removeFromParent()
+            isPaused = false
+        } else if node.name == "quit" {
+            self.view?.presentScene(MenuScene(size: size))
+        } else {
+            if !isPaused {
+                if playerIsOnGround {
+                    playerIsOnGround = false
+                    playerVelocityY = -25.0
+                }
             }
         }
     }
@@ -387,6 +406,30 @@ extension DrunkFightGameScene {
         cameraNode.addChild(pauseNode)
     }
     
+    func createPanel(){
+        cameraNode.addChild(containerNode)
+        
+        let panel = SKSpriteNode(imageNamed: "panel")
+        panel.zPosition = 60.0
+        panel.position = .zero
+        containerNode.addChild(panel)
+        
+        let resume = SKSpriteNode(imageNamed: "resume")
+        resume.zPosition = 70.0
+        resume.name = "resume"
+        resume.setScale(0.7)
+        resume.position = CGPoint(x: -panel.frame.width/2.0 + resume.frame.width * 1.5, y: 0.0)
+        panel.addChild(resume)
+        
+        let quit = SKSpriteNode(imageNamed: "back")
+        quit.zPosition = 70.0
+        quit.name = "quit"
+        quit.setScale(0.7)
+        quit.position = CGPoint(x: panel.frame.width/2.0 - quit.frame.width * 1.5, y: 0.0)
+        panel.addChild(quit)
+        
+    }
+    
     func decrementLife(){
         life -= 1
         if life <= 0 { life = 0}
@@ -423,6 +466,12 @@ extension DrunkFightGameScene: SKPhysicsContactDelegate {
                 scoreLabel.text = "\(playerScore)"
                 if playerScore % 5 == 0{
                     cameraMovePointPerSecond += 100.00
+                }
+                
+                let highscore = ScoreGenerator.sharedInstance.getHighscore()
+                if playerScore > highscore {
+                    ScoreGenerator.sharedInstance.setHighscore(playerScore)
+                    ScoreGenerator.sharedInstance.setHighscore(highscore)
                 }
             }
         default: break
