@@ -82,7 +82,8 @@ class MenuScene: SKScene {
         switch node.name {
             
         case ClayGame1.name:
-            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
+//            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
+            gameScene = DrunkFightGameScene(size: self.size)
             gameScene.scaleMode = .aspectFill
         case ClayGame2.name:
             gameScene = InfiniteJSONScene(size: self.size)

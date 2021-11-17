@@ -96,7 +96,12 @@ class DrunkFightGameScene: SKScene {
             containerNode.removeFromParent()
             isPaused = false
         } else if node.name == "quit" {
-            self.view?.presentScene(MenuScene(size: size))
+            
+            let menuScene: SKScene = MenuScene(size: self.size)
+            menuScene.scaleMode = .aspectFill
+            
+            self.view?.presentScene(menuScene)
+            
         } else {
             if !isPaused {
                 if playerIsOnGround {
