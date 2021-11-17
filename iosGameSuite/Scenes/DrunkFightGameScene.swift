@@ -14,21 +14,35 @@ class DrunkFightGameScene: SKScene {
     
     var ground: SKSpriteNode!
     var player: SKSpriteNode!
+    
+    var coin: SKSpriteNode!
+    
     var cameraNode = SKCameraNode()
     
     var obstacles: [SKSpriteNode] = []
     
-    var cameraMovePointPerSecond: CGFloat = 650.0
+    var cameraMovePointPerSecond: CGFloat = 850.0
     
     var lastUpdateTime: TimeInterval = 0.0
     var dt: TimeInterval = 0.0
     
     var maxSpawnTime: CGFloat = 3.0
     
-    var playerOnGround = true
+    var playerIsOnGround = true
     var playerVelocityY: CGFloat = 0.0
     var gravity: CGFloat = 0.6
     var playerPosY: CGFloat = 0.0
+    
+    var playerScore: Int = 0
+    var isGameOver = false
+    var life: Int = 3
+    
+    var lifeNodes: [SKSpriteNode] = []
+    var scoreLabel = SKLabelNode(fontNamed: "rimouski sb")
+    var coinIcon: SKSpriteNode!
+    
+    var pauseNode: SKSpriteNode!
+    var containerNode = SKNode()
     
     var playableRect: CGRect {
         let ratio: CGFloat
@@ -66,6 +80,20 @@ class DrunkFightGameScene: SKScene {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
+        if !isPaused {
+            if playerIsOnGround {
+                playerIsOnGround = false
+                playerVelocityY = -25.0
+            }
+        }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        if playerVelocityY < -12.5 {
+            playerVelocityY = -12.5
+        }
+        
     }
     override func update(_ currentTime: TimeInterval) {
         if lastUpdateTime > 0 {
@@ -78,6 +106,14 @@ class DrunkFightGameScene: SKScene {
         moveCamera()
         movePlayer()
         
+        playerVelocityY += gravity
+        player.position.y -= playerVelocityY
+        
+        if player.position.y < playerPosY {
+            player.position.y = playerPosY
+            playerVelocityY = 0.0
+            playerIsOnGround = true
+        }
     }
 }
 
@@ -90,10 +126,25 @@ extension DrunkFightGameScene {
         createBackground()
         createGround()
         createPlayer()
-        setupObstacles()
+        createCoin()
+        
+        spawnCoin()
+        
+        createObstacles()
         spawnObstacles()
-        setupCamera()
+        
+        setupPhysics()
+        
+        setupPause()
+        setupLife()
+        setupScore()
+        createCamera()
     }
+    
+    func setupPhysics(){
+        physicsWorld.contactDelegate = self
+    }
+    
     
     func createBackground(){
         for i in 0...2{
@@ -117,22 +168,64 @@ extension DrunkFightGameScene {
             ground.zPosition = 1.0
             // Set position of each ground to be i x width, so that they are horizontally stacked
             ground.position = CGPoint(x: CGFloat(i) * ground.frame.width, y:0.0)
+            
+            // Add physics body
+            ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
+            ground.physicsBody!.isDynamic = false
+            ground.physicsBody!.affectedByGravity = false
+            ground.physicsBody!.categoryBitMask = PhysicsCategory.Ground
             self.addChild(ground)
         }
     }
     
     func createPlayer(){
-        player = SKSpriteNode(imageNamed: "ninja")
+        player = SKSpriteNode(imageNamed: "JSON1")
         player.name = "Player"
         player.zPosition = 5.0
-        player.setScale(0.85)
+        player.setScale(2.05)
         // This postions the player directly in contact with the ground and slightly to the left
         player.position = CGPoint(x: frame.width/2.0 - 100, y: ground.frame.height + player.frame.height/2.0)
         playerPosY = player.position.y
+        
+        // Add physics body to player
+        player.physicsBody = SKPhysicsBody(circleOfRadius: player.size.width/2.0)
+        player.physicsBody!.affectedByGravity = false
+        player.physicsBody!.restitution = 0.0
+        player.physicsBody!.categoryBitMask = PhysicsCategory.Player
+        player.physicsBody!.contactTestBitMask = PhysicsCategory.Obstacle | PhysicsCategory.Block | PhysicsCategory.Coin
         self.addChild(player)
     }
     
-    func setupObstacles(){
+    func createCoin() {
+        coin = SKSpriteNode(imageNamed: "coin-1")
+        coin.name = "Coin"
+        let coinHeight = coin.frame.height
+        let random = CGFloat.random(min: -coinHeight, max: coinHeight * 2.0)
+        coin.position = CGPoint(x: cameraRect.maxX + coin.frame.width, y: size.height/2.0 + random)
+        
+        coin.physicsBody = SKPhysicsBody(circleOfRadius: coin.size.width/2.0)
+        coin.physicsBody!.affectedByGravity = false
+        coin.physicsBody!.isDynamic = false
+        coin.physicsBody!.categoryBitMask = PhysicsCategory.Coin
+        coin.physicsBody!.contactTestBitMask = PhysicsCategory.Player
+        
+        addChild(coin)
+        
+        // Update this to despawn coin when it's off screen
+        coin.run(.sequence([
+            .wait(forDuration: 15.0),
+            .removeFromParent()
+        ]))
+        
+        // Animate Coin
+        var textures: [SKTexture] = []
+        for i in 1...6 {
+            textures.append(SKTexture(imageNamed: "coin-\(i)"))
+        }
+        coin.run(.repeatForever(.animate(with: textures, timePerFrame: 0.043)))
+    }
+    
+    func createObstacles(){
         for i in 1...3 {
             let sprite = SKSpriteNode(imageNamed: "block-\(i)")
             sprite.name = "Block"
@@ -150,6 +243,18 @@ extension DrunkFightGameScene {
         sprite.zPosition = 5.0
         sprite.setScale(0.85)
         sprite.position = CGPoint(x: cameraRect.maxX + sprite.frame.width/2.0, y: ground.frame.height + sprite.frame.height/2.0)
+        
+        sprite.physicsBody = SKPhysicsBody(rectangleOf: sprite.size)
+        sprite.physicsBody!.affectedByGravity = false
+        sprite.physicsBody!.isDynamic = false
+        
+        if sprite.name == "Block" {
+            sprite.physicsBody!.categoryBitMask = PhysicsCategory.Block
+        } else if sprite.name == "Obstacle" {
+            sprite.physicsBody!.categoryBitMask = PhysicsCategory.Obstacle
+        }
+        sprite.physicsBody!.contactTestBitMask = PhysicsCategory.Player
+        
         addChild(sprite)
         
         // Clean up nodes off camera.
@@ -161,7 +266,7 @@ extension DrunkFightGameScene {
         
     }
     
-    func setupCamera() {
+    func createCamera() {
         self.addChild(cameraNode)
         camera = cameraNode
         cameraNode.position = CGPoint(x: frame.midX, y: frame.midY)
@@ -203,7 +308,7 @@ extension DrunkFightGameScene {
         run(.repeatForever(.sequence([
             .wait(forDuration: random),
             .run { [weak self] in
-                self?.setupObstacles()
+                self?.createObstacles()
             }
         ])))
         
@@ -217,4 +322,110 @@ extension DrunkFightGameScene {
         ])))
     }
     
+    func spawnCoin(){
+        let random = CGFloat.random(min: 2.5, max: 6.0)
+        run(.repeatForever(.sequence([
+            .wait(forDuration: TimeInterval(random)),
+            .run{ [weak self] in
+                self?.createCoin()
+            }
+        ])))
+    }
+    
+    func setupLife() {
+        let node1 = SKSpriteNode(imageNamed: "life-on")
+        let node2 = SKSpriteNode(imageNamed: "life-on")
+        let node3 = SKSpriteNode(imageNamed: "life-on")
+        
+        setupLifePosition(node1, i: 1.0, j: 0.0)
+        setupLifePosition(node2, i: 2.0, j: 8.0)
+        setupLifePosition(node3, i: 3.0, j: 16.0)
+        
+        lifeNodes.append(node1)
+        lifeNodes.append(node2)
+        lifeNodes.append(node3)
+    }
+    
+    func setupLifePosition(_ node: SKSpriteNode, i: CGFloat, j: CGFloat) {
+        let width = playableRect.width
+        let height = playableRect.height
+        
+        node.setScale(0.5)
+        node.zPosition = 50.0
+        node.position = CGPoint(x: -width/2.0 + node.frame.width*i + j - 15.0,
+                                y: height/2.0 - node.frame.height/2.0)
+        
+        cameraNode.addChild(node)
+    }
+    
+    func setupScore() {
+        coinIcon = SKSpriteNode(imageNamed: "coin-1")
+        coinIcon.setScale(0.5)
+        coinIcon.zPosition = 50.0
+        coinIcon.position = CGPoint(x: -playableRect.width/2.0 + coinIcon.frame.width,
+                                    y: playableRect.height/2.0 - lifeNodes[0].frame.height - coinIcon.frame.height/2.0)
+        
+        scoreLabel.text = "\(playerScore)"
+        scoreLabel.fontSize = 60.0
+        scoreLabel.horizontalAlignmentMode = .left
+        scoreLabel.verticalAlignmentMode = .top
+        scoreLabel.zPosition = 50.0
+        scoreLabel.position = CGPoint(x: -playableRect.width/2.0 + coinIcon.frame.width*2.0 - 10.0,
+                                      y: coinIcon.position.y + coinIcon.frame.height/2.0 - 8.0)
+        
+        cameraNode.addChild(coinIcon)
+        cameraNode.addChild(scoreLabel)
+    }
+    
+    func setupPause(){
+        pauseNode = SKSpriteNode(imageNamed: "pause")
+        pauseNode.setScale(0.5)
+        pauseNode.zPosition = 50.0
+        pauseNode.name = "pause"
+        pauseNode.position = CGPoint(x: playableRect.width/2.0 - pauseNode.frame.width/2.0 - 30.0,
+                                     y: playableRect.height/2.0 - pauseNode.frame.height/2.0 - 10.0)
+        cameraNode.addChild(pauseNode)
+    }
+    
+    func decrementLife(){
+        life -= 1
+        if life <= 0 { life = 0}
+        lifeNodes[life].texture = SKTexture(imageNamed: "life-off")
+        
+        if life <= 0 && !isGameOver {
+            isGameOver = true
+        }
+    }
+}
+
+//MARK: - SKPhysicsContactDelegate
+
+extension DrunkFightGameScene: SKPhysicsContactDelegate {
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        let other = contact.bodyA.categoryBitMask == PhysicsCategory.Player ? contact.bodyB : contact.bodyA
+        
+        switch other.categoryBitMask {
+            
+        case PhysicsCategory.Block:
+            cameraMovePointPerSecond += 150.0
+            playerScore-=1
+            if playerScore <= 0 {
+                playerScore = 0
+            }
+            scoreLabel.text = "\(playerScore)"
+        case PhysicsCategory.Obstacle:
+            decrementLife()
+        case PhysicsCategory.Coin:
+            if let node = other.node {
+                node.removeFromParent()
+                playerScore+=1
+                scoreLabel.text = "\(playerScore)"
+                if playerScore % 5 == 0{
+                    cameraMovePointPerSecond += 100.00
+                }
+            }
+        default: break
+        }
+    }
 }
