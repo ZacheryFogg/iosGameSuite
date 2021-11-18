@@ -46,8 +46,13 @@ class DrunkFightGameScene: SKScene {
     
     var postGameContainerNode = SKNode()
     
+    
     // Names for nodes declared globally so that they can be easily changed
-//    let pauseButtonNodeName: String = "pauseButtonNode"
+    let pauseButtonNodeName: String = "pauseButtonNode"
+    let resumeButtonNodeName: String = "resumeButtonNode"
+    let quitFromPauseButtonNodeName: String = "quitFromPauseButtonNode"
+    let quitFromPostButtonNodeName: String = "quitFromPostButtonNode"
+    let replayButtonNodeName: String = "replayButtonNode"
     
     var playableRect: CGRect {
         let ratio: CGFloat
@@ -90,25 +95,39 @@ class DrunkFightGameScene: SKScene {
         
         let node = atPoint(touch.location(in: self))
         
-        if node.name == "resume" {
+        // Buttons in pause menu
+        if node.name == pauseButtonNodeName{
             if isPaused { return }
             createPausePanel()
             lastUpdateTime = 0.0
             dt = 0.0
             isPaused = true
             
-        } else if node.name == "resume" {
+        } else if node.name == resumeButtonNodeName {
             pauseContainerNode.removeFromParent()
             isPaused = false
-        } else if node.name == "quit" {
+        } else if node.name == quitFromPauseButtonNodeName {
             
             let menuScene: SKScene = MenuScene(size: self.size)
             menuScene.scaleMode = self.scaleMode
             
             self.view?.presentScene(menuScene, transition: .doorsCloseVertical(withDuration: 0.5))
+        }
+        // Buttons in post game menu
+        else if node.name == replayButtonNodeName {
+            let newGameScene = DrunkFightGameScene(size: self.size)
+            newGameScene.scaleMode = self.scaleMode
+            self.view?.presentScene(newGameScene, transition: .doorsOpenVertical(withDuration: 0.5))
+        
+        } else if node.name == quitFromPostButtonNodeName {
+            let menuScene: SKScene = MenuScene(size: self.size)
+            menuScene.scaleMode = self.scaleMode
             
+            self.view?.presentScene(menuScene, transition: .doorsCloseVertical(withDuration: 0.5))
+
+        }
         // Touch was not a button, jump player
-        } else {
+        else {
             if !isPaused {
                 if playerIsOnGround {
                     playerIsOnGround = false
@@ -147,7 +166,10 @@ class DrunkFightGameScene: SKScene {
         
         if isGameOver {
             // Present out game over scene, with possibly
-            createPostGamePanel()
+            if !isPaused{
+                createPostGamePanel()
+                isPaused = true
+            }
         }
         
         boundCheckPlayer()
@@ -418,7 +440,7 @@ extension DrunkFightGameScene {
         pauseButtonNode = SKSpriteNode(imageNamed: "pause")
         pauseButtonNode.setScale(0.5)
         pauseButtonNode.zPosition = 50.0
-        pauseButtonNode.name = "resume"
+        pauseButtonNode.name = pauseButtonNodeName
         pauseButtonNode.position = CGPoint(x: playableRect.width/2.0 - pauseButtonNode.frame.width/2.0 - 30.0,
                                      y: playableRect.height/2.0 - pauseButtonNode.frame.height/2.0 - 10.0)
         cameraNode.addChild(pauseButtonNode)
@@ -434,14 +456,14 @@ extension DrunkFightGameScene {
         
         let resumeButton = SKSpriteNode(imageNamed: "resume")
         resumeButton.zPosition = 70.0
-        resumeButton.name = "resume"
+        resumeButton.name = resumeButtonNodeName
         resumeButton.setScale(0.7)
         resumeButton.position = CGPoint(x: -pausePanel.frame.width/2.0 + resumeButton.frame.width * 1.5, y: 0.0)
         pausePanel.addChild(resumeButton)
         
         let quitButton = SKSpriteNode(imageNamed: "back")
         quitButton.zPosition = 70.0
-        quitButton.name = "quit"
+        quitButton.name = quitFromPauseButtonNodeName
         quitButton.setScale(0.7)
         quitButton.position = CGPoint(x: pausePanel.frame.width/2.0 - quitButton.frame.width * 1.5, y: 0.0)
         pausePanel.addChild(quitButton)
@@ -453,20 +475,38 @@ extension DrunkFightGameScene {
         
         // Image will need to change for all of these
         let postGamePanel = SKSpriteNode(imageNamed: "panel")
+        postGamePanel.zPosition = 60.0
+//        postGamePanel.setScale(2.0)
+        postGamePanel.position = .zero // middle of screen I think
+        postGameContainerNode.addChild(postGamePanel)
+        
+        let postGamePanelTitle = SKLabelNode(fontNamed: "rimouski sb")
+        postGamePanelTitle.text = "Game Over: \(playerScore > 0 ? "Red" : "Blue") Wins!" // this logic is filler, need two player scores
+        postGamePanelTitle.fontSize = 70
+        postGamePanelTitle.fontColor = SKColor.black
+        postGamePanelTitle.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 50)
+        postGamePanel.addChild(postGamePanelTitle)
+        
+        let postGamePanelMessage = SKLabelNode(fontNamed: "rimouski sb")
+        postGamePanelMessage.text = "\(playerScore) - \(playerScore + 1)"
+        postGamePanelMessage.fontSize = 60
+        postGamePanelMessage.fontColor = SKColor.black
+        postGamePanelMessage.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 5)
+        postGamePanel.addChild(postGamePanelMessage)
         
         let replayButton = SKSpriteNode(imageNamed: "resume")
         replayButton.zPosition = 70.0
-        replayButton.name = "replayButton"
+        replayButton.name = replayButtonNodeName
         replayButton.setScale(0.7)
-        replayButton.position = CGPoint(x: -postGamePanel.frame.width/2.0 + replayButton/frame.width * 1.5, y:0.0)
+        replayButton.position = CGPoint(x: -postGamePanel.frame.width/2.0 + replayButton.frame.width * 1.5, y:0.0)
         postGamePanel.addChild(replayButton)
         
         let quitButton = SKSpriteNode(imageNamed: "back")
         quitButton.zPosition = 70.0
-        quitButton.name = "quit"
+        quitButton.name = quitFromPostButtonNodeName
         quitButton.setScale(0.7)
         quitButton.position = CGPoint(x: postGamePanel.frame.width/2.0 - quitButton.frame.width * 1.5, y: 0.0)
-        pausePanel.addChild(quitButton)
+        postGamePanel.addChild(quitButton)
         
         
     }
@@ -474,7 +514,7 @@ extension DrunkFightGameScene {
     func boundCheckPlayer(){
         let bottomLeft = CGPoint(x: cameraRect.minX, y: cameraRect.minY)
         
-        if player.position.x <= bottomLeft.x {
+        if player.position.x + player.frame.width <= bottomLeft.x {
             player.position.x = bottomLeft.x
             lifeNodes.forEach({ $0.texture = SKTexture(imageNamed: "life-off")})
             
