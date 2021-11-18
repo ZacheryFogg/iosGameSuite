@@ -41,8 +41,13 @@ class DrunkFightGameScene: SKScene {
     var scoreLabel = SKLabelNode(fontNamed: "rimouski sb")
     var coinIcon: SKSpriteNode!
     
-    var pauseNode: SKSpriteNode!
-    var containerNode = SKNode()
+    var pauseButtonNode: SKSpriteNode!
+    var pauseContainerNode = SKNode()
+    
+    var postGameContainerNode = SKNode()
+    
+    // Names for nodes declared globally so that they can be easily changed
+//    let pauseButtonNodeName: String = "pauseButtonNode"
     
     var playableRect: CGRect {
         let ratio: CGFloat
@@ -85,23 +90,24 @@ class DrunkFightGameScene: SKScene {
         
         let node = atPoint(touch.location(in: self))
         
-        if node.name == "pause" {
+        if node.name == "resume" {
             if isPaused { return }
-            createPanel()
+            createPausePanel()
             lastUpdateTime = 0.0
             dt = 0.0
             isPaused = true
             
         } else if node.name == "resume" {
-            containerNode.removeFromParent()
+            pauseContainerNode.removeFromParent()
             isPaused = false
         } else if node.name == "quit" {
             
             let menuScene: SKScene = MenuScene(size: self.size)
-            menuScene.scaleMode = .aspectFill
+            menuScene.scaleMode = self.scaleMode
             
-            self.view?.presentScene(menuScene)
+            self.view?.presentScene(menuScene, transition: .doorsCloseVertical(withDuration: 0.5))
             
+        // Touch was not a button, jump player
         } else {
             if !isPaused {
                 if playerIsOnGround {
@@ -138,6 +144,13 @@ class DrunkFightGameScene: SKScene {
             playerVelocityY = 0.0
             playerIsOnGround = true
         }
+        
+        if isGameOver {
+            // Present out game over scene, with possibly
+            createPostGamePanel()
+        }
+        
+        boundCheckPlayer()
     }
 }
 
@@ -159,7 +172,7 @@ extension DrunkFightGameScene {
         
         setupPhysics()
         
-        setupPause()
+        setupPauseButton()
         setupLife()
         setupScore()
         createCamera()
@@ -401,38 +414,74 @@ extension DrunkFightGameScene {
         cameraNode.addChild(scoreLabel)
     }
     
-    func setupPause(){
-        pauseNode = SKSpriteNode(imageNamed: "pause")
-        pauseNode.setScale(0.5)
-        pauseNode.zPosition = 50.0
-        pauseNode.name = "pause"
-        pauseNode.position = CGPoint(x: playableRect.width/2.0 - pauseNode.frame.width/2.0 - 30.0,
-                                     y: playableRect.height/2.0 - pauseNode.frame.height/2.0 - 10.0)
-        cameraNode.addChild(pauseNode)
+    func setupPauseButton(){
+        pauseButtonNode = SKSpriteNode(imageNamed: "pause")
+        pauseButtonNode.setScale(0.5)
+        pauseButtonNode.zPosition = 50.0
+        pauseButtonNode.name = "resume"
+        pauseButtonNode.position = CGPoint(x: playableRect.width/2.0 - pauseButtonNode.frame.width/2.0 - 30.0,
+                                     y: playableRect.height/2.0 - pauseButtonNode.frame.height/2.0 - 10.0)
+        cameraNode.addChild(pauseButtonNode)
     }
     
-    func createPanel(){
-        cameraNode.addChild(containerNode)
+    func createPausePanel(){
+        cameraNode.addChild(pauseContainerNode)
         
-        let panel = SKSpriteNode(imageNamed: "panel")
-        panel.zPosition = 60.0
-        panel.position = .zero
-        containerNode.addChild(panel)
+        let pausePanel = SKSpriteNode(imageNamed: "panel")
+        pausePanel.zPosition = 60.0
+        pausePanel.position = .zero
+        pauseContainerNode.addChild(pausePanel)
         
-        let resume = SKSpriteNode(imageNamed: "resume")
-        resume.zPosition = 70.0
-        resume.name = "resume"
-        resume.setScale(0.7)
-        resume.position = CGPoint(x: -panel.frame.width/2.0 + resume.frame.width * 1.5, y: 0.0)
-        panel.addChild(resume)
+        let resumeButton = SKSpriteNode(imageNamed: "resume")
+        resumeButton.zPosition = 70.0
+        resumeButton.name = "resume"
+        resumeButton.setScale(0.7)
+        resumeButton.position = CGPoint(x: -pausePanel.frame.width/2.0 + resumeButton.frame.width * 1.5, y: 0.0)
+        pausePanel.addChild(resumeButton)
         
-        let quit = SKSpriteNode(imageNamed: "back")
-        quit.zPosition = 70.0
-        quit.name = "quit"
-        quit.setScale(0.7)
-        quit.position = CGPoint(x: panel.frame.width/2.0 - quit.frame.width * 1.5, y: 0.0)
-        panel.addChild(quit)
+        let quitButton = SKSpriteNode(imageNamed: "back")
+        quitButton.zPosition = 70.0
+        quitButton.name = "quit"
+        quitButton.setScale(0.7)
+        quitButton.position = CGPoint(x: pausePanel.frame.width/2.0 - quitButton.frame.width * 1.5, y: 0.0)
+        pausePanel.addChild(quitButton)
         
+    }
+    
+    func createPostGamePanel(){
+        cameraNode.addChild(postGameContainerNode)
+        
+        // Image will need to change for all of these
+        let postGamePanel = SKSpriteNode(imageNamed: "panel")
+        
+        let replayButton = SKSpriteNode(imageNamed: "resume")
+        replayButton.zPosition = 70.0
+        replayButton.name = "replayButton"
+        replayButton.setScale(0.7)
+        replayButton.position = CGPoint(x: -postGamePanel.frame.width/2.0 + replayButton/frame.width * 1.5, y:0.0)
+        postGamePanel.addChild(replayButton)
+        
+        let quitButton = SKSpriteNode(imageNamed: "back")
+        quitButton.zPosition = 70.0
+        quitButton.name = "quit"
+        quitButton.setScale(0.7)
+        quitButton.position = CGPoint(x: postGamePanel.frame.width/2.0 - quitButton.frame.width * 1.5, y: 0.0)
+        pausePanel.addChild(quitButton)
+        
+        
+    }
+    
+    func boundCheckPlayer(){
+        let bottomLeft = CGPoint(x: cameraRect.minX, y: cameraRect.minY)
+        
+        if player.position.x <= bottomLeft.x {
+            player.position.x = bottomLeft.x
+            lifeNodes.forEach({ $0.texture = SKTexture(imageNamed: "life-off")})
+            
+            playerScore = 0
+            scoreLabel.text = "\(playerScore)"
+            isGameOver = true
+        }
     }
     
     func decrementLife(){

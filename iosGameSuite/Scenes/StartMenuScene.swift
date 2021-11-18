@@ -84,7 +84,6 @@ class MenuScene: SKScene {
         case ClayGame1.name:
 //            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
             gameScene = DrunkFightGameScene(size: self.size)
-            gameScene.scaleMode = .aspectFill
         case ClayGame2.name:
             gameScene = InfiniteJSONScene(size: self.size)
         case ZachGame1.name:
@@ -100,6 +99,7 @@ class MenuScene: SKScene {
         default:
             return
         }
+        gameScene.scaleMode = self.scaleMode
         self.view?.presentScene(gameScene, transition: .doorsOpenVertical(withDuration: 0.5))
     }
 }
