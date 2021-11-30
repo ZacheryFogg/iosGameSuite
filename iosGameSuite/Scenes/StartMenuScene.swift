@@ -40,6 +40,11 @@ class MenuScene: SKScene {
         ClayGame.name = "ClayGame"
         TankGame.name = "TankGame"
         LilKGame.name = "LogDodgeGame"
+        
+        DemoGame.setScale(0.5)
+        ClayGame.setScale(0.5)
+        TankGame.setScale(0.5)
+        LilKGame.setScale(0.5)
 
         
         let frameW = frame.width

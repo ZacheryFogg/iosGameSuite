@@ -37,6 +37,9 @@ class InfiniteJSONScene: SKScene {
         JSON.position = CGPoint(x:frame.midX, y:frame.midY)
         JSON2.position = CGPoint(x: frame.midX + 100, y: frame.midY + 100)
         
+        JSON.setScale(0.5)
+        JSON2.setScale(0.5)
+        
         //Physics
         
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // make frame of screen an immovable edge

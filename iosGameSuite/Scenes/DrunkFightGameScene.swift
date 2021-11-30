@@ -86,6 +86,7 @@ class DrunkFightGameScene: SKScene {
 //        ]))
         self.setupNodes()
         
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -225,6 +226,7 @@ extension DrunkFightGameScene {
             ground.name = "Ground"
             ground.anchorPoint = .zero
             ground.zPosition = 1.0
+            ground.setScale(0.5)
             // Set position of each ground to be i x width, so that they are horizontally stacked
             ground.position = CGPoint(x: CGFloat(i) * ground.frame.width, y:0.0)
             
@@ -241,7 +243,7 @@ extension DrunkFightGameScene {
         player = SKSpriteNode(imageNamed: "JSON1")
         player.name = "Player"
         player.zPosition = 5.0
-        player.setScale(2.05)
+        player.setScale(0.5)
         // This postions the player directly in contact with the ground and slightly to the left
         player.position = CGPoint(x: frame.width/2.0 - 100, y: ground.frame.height + player.frame.height/2.0)
         playerPosY = player.position.y
@@ -300,7 +302,7 @@ extension DrunkFightGameScene {
         let index = Int(arc4random_uniform(UInt32(obstacles.count - 1)))
         let sprite = obstacles[index].copy() as! SKSpriteNode
         sprite.zPosition = 5.0
-        sprite.setScale(0.85)
+        sprite.setScale(0.5)
         sprite.position = CGPoint(x: cameraRect.maxX + sprite.frame.width/2.0, y: ground.frame.height + sprite.frame.height/2.0)
         
         sprite.physicsBody = SKPhysicsBody(rectangleOf: sprite.size)
