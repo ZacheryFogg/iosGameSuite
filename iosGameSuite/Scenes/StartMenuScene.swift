@@ -91,7 +91,7 @@ class MenuScene: SKScene {
         case ZachGame1.name:
             gameScene = InfiniteJSONScene(size: self.size)
         case LilKGame1.name:
-            gameScene = InfiniteJSONScene(size: self.size)
+            gameScene = SnakeGameScene(size: self.size)
         case LilKGame2.name:
             let temp = PostGameScene(size: self.size)
             temp.passGameInfo(from: InfiniteJSONScene(size: self.size), redScore: 2, blueScore: 5)

@@ -30,6 +30,8 @@ class GameViewController: UIViewController {
         view.showsNodeCount = true
         view.showsPhysics = true // draw physics bodies so that we can easily see how they behave
         
+        view.isMultipleTouchEnabled = true
+        
         // Present the scene. Navigate to scene that we declared above
         view.presentScene(scene)
     }
