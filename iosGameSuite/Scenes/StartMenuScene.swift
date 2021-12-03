@@ -39,18 +39,18 @@ class MenuScene: SKScene {
         DemoGame.name = "DemoGame"
         ClayGame.name = "ClayGame"
         TankGame.name = "TankGame"
-        LilKGame.name = "LogDodgeGame"
+        SnakeGame.name = "SnakeGame"
         
         DemoGame.setScale(0.5)
         ClayGame.setScale(0.5)
         TankGame.setScale(0.5)
-        LilKGame.setScale(0.5)
+        SnakeGame.setScale(0.5)
 
         
         let frameW = frame.width
         let frameH = frame.height
         
-        let ButtonNodes = [DemoGame, ClayGame, TankGame, LilKGame]
+        let ButtonNodes = [DemoGame, ClayGame, TankGame, SnakeGame]
                 
         let xs = [frameW * (1/5), frameW * (2/5), frameW * (3/5), frameW * (4/5)].map {Int($0)}
         
@@ -80,16 +80,18 @@ class MenuScene: SKScene {
         case DemoGame.name:
 //            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
             gameScene = DrunkFightGameScene(size: self.size)
+            gameScene.scaleMode = self.scaleMode
         case ClayGame.name:
             gameScene = InfiniteJSONScene(size: self.size)
         case TankGame.name:
             gameScene = TankGameScene(size: self.size)
-        case LilKGame.name:
-            gameScene = InfiniteJSONScene(size: self.size)
+            gameScene.scaleMode = self.scaleMode
+        case SnakeGame.name:
+            gameScene = SnakeGameScene(size: CGSize(width: self.size.width * 3, height: self.size.height * 3))
         default:
             return
         }
-        gameScene.scaleMode = self.scaleMode
+//        gameScene.scaleMode = self.scaleMode
         self.view?.presentScene(gameScene, transition: .doorsOpenVertical(withDuration: 0.5))
         
         
