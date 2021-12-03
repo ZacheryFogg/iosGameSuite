@@ -82,7 +82,8 @@ class MenuScene: SKScene {
             gameScene = DrunkFightGameScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
         case ClayGame.name:
-            gameScene = InfiniteJSONScene(size: self.size)
+            gameScene = SKScene(fileNamed: "AHGameScene")!
+            gameScene.scaleMode = .aspectFill
         case TankGame.name:
             gameScene = TankGameScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
