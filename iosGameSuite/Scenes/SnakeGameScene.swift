@@ -30,7 +30,7 @@ class SnakeGameScene: SKScene {
     //MARK: - Properties
     
     // controls snake speed number represents seconds/block
-    let refreshRate = 1.2
+    let refreshRate = 0.3
     
     var cameraNode = SKCameraNode()
     
