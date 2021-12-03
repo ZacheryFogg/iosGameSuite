@@ -18,7 +18,7 @@ class MenuScene: SKScene {
     let ClayGame2 = ButtonNode(imageNamed: "cowboy")
     let ZachGame1 = ButtonNode(imageNamed: "cowboy")
     let ZachGame2 = ButtonNode(imageNamed: "cowboy")
-    let LilKGame1 = ButtonNode(imageNamed: "log")
+    let LilKGame1 = ButtonNode(imageNamed: "snakeGameIcon")
     let LilKGame2 = ButtonNode(imageNamed: "cowboy")
     
     //MARK: - Systems
@@ -42,6 +42,7 @@ class MenuScene: SKScene {
         ZachGame1.name = "ZachGame1"
         ZachGame2.name = "ZachGame2"
         LilKGame1.name = "LilKGame1"
+        LilKGame1.size = CGSize(width: frame.width / 5, height: frame.width / 5)
         LilKGame2.name = "LilKGame2"
 
         

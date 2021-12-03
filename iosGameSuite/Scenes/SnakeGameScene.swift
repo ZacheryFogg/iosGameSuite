@@ -10,27 +10,27 @@ import SpriteKit
 class SnakeGameScene: SKScene {
     let snakeSize = CGSize(width: 75, height: 75)
     let pelletSize = CGSize(width: 50, height: 50)
-    let startingSize = 5
-    let maxPellets = 100
+    let startingSize = 3
+    let maxPellets = 3
     var snakeBlue: [SKSpriteNode] = []
     var snakeRed: [SKSpriteNode] = []
     
     var collidedBlue = false
     var collidedRed = false
     
-//    var directionBlue = Direction.left
-//    var directionRed = Direction.right
+    var directionBlue = Direction.left
+    var directionRed = Direction.right
     
-    var directionBlue = Direction.down
-    var directionRed = Direction.down
-    
+//    var directionBlue = Direction.down
+//    var directionRed = Direction.down
+
     
     var pointPellets: [SKSpriteNode] = []
     
     //MARK: - Properties
     
-    // controls snake speed number represents blocks/second
-    let refreshRate = 0.5
+    // controls snake speed number represents seconds/block
+    let refreshRate = 1.2
     
     var cameraNode = SKCameraNode()
     
@@ -79,40 +79,58 @@ class SnakeGameScene: SKScene {
     let leftButtonRedNodeName: String = "leftButtonRedNode"
     let rightButtonRedNodeName: String = "rightButtonRedNode"
     
-    var playableRect = UIScreen.main.bounds
+//    var playableRect = CGSize(width: self.size.width, height: self.size.height)
+//    var playableRect: CGSize!
     
-//    var playableRect: CGRect {
-//        let ratio: CGFloat
-//        switch UIScreen.main.nativeBounds.height {
-//
-//        case 2688,1792,2436:
-//            ratio = 2.16
-//        default:
-//            ratio = 16/9
-//        }
-//
-//        let playableHeight = self.size.width / ratio
-//        let playableMargin = (self.size.height - playableHeight) / 2.0
-//        return CGRect(x: 0.0, y: playableMargin, width: self.size.width, height: playableHeight)
-//    }
-    
-    var cameraRect: CGRect {
-        let width = playableRect.width
-        let height = playableRect.height
-        // Calculate the display position of the camera
-        let x = cameraNode.position.x - size.width/2.0 + (size.width - width)
-        let y = cameraNode.position.y - size.height/2.0 + (size.height - height)
-        
-        return CGRect(x: x, y: y, width: width, height:  height)
+    var playableRect: CGRect {
+        let ratio: CGFloat
+        switch UIScreen.main.nativeBounds.height {
+
+        case 2688,1792,2436:
+            ratio = 2.16
+        default:
+            ratio = 16/9
+        }
+
+        let playableHeight = self.size.width / ratio
+        let playableMargin = (self.size.height - playableHeight) / 2.0
+        return CGRect(x: 0.0, y: playableMargin, width: self.size.width, height: playableHeight)
     }
+    
+    
+    // calculate grid area based on playable area and snake size
+    var maxHeight: Int {
+        var height = 0
+        while playableRect.height/2 + snakeSize.height * CGFloat(height + 1) < playableRect.height {
+            height += 1
+        }
+        return height
+    }
+    var minHeight: Int {
+        var height = 0
+        while playableRect.height/2 + snakeSize.height * CGFloat(height - 1) > 0 {
+            height -= 1
+        }
+        return height
+    }
+    var maxWidth: Int {
+        var width = 0
+        while playableRect.width/2 + snakeSize.width * CGFloat(width + 1) < playableRect.width {
+            width += 1
+        }
+        return width
+    }
+    var minWidth: Int {
+        var width = 0
+        while playableRect.width/2 + snakeSize.width * CGFloat(width - 1) > 0 {
+            width -= 1
+        }
+        return width
+    }
+    
     //MARK: - Systems
     override func didMove(to view: SKView) {
-//        run(.sequence([
-//            .wait(forDuration: 1.0),
-//            .run { self.setupNodes()}
-//        ]))
         self.setupNodes()
-        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -191,8 +209,7 @@ class SnakeGameScene: SKScene {
             if collidedBlue || collidedRed {
                 isGameOver = true
             }
-            checkPelletPickup()
-//            relocatePellet(pointPellets[0])
+            checkPelletEaten()
         }
 
         
@@ -216,21 +233,20 @@ extension SnakeGameScene {
         
         setupArrowButtons()
         
-        createPointPellets()
-        
         setupPauseButton()
-        setupScore()
         
         createCamera()
+        
+        createPointPellets()
     }
     
     func createBackground(){
         let background = SKSpriteNode(imageNamed: "snakeBackground")
         background.name = "Background"
-        background.position = CGPoint(x: self.size.width/2, y: self.size.height/2)
-        background.size = CGSize(width: self.size.width, height: playableRect.height)
+        background.position = CGPoint(x: 0, y: 0) //self.size.width/2, y: self.size.height/2)
+        background.size = CGSize(width: playableRect.width, height: playableRect.height)
         background.zPosition = -1.0 // Make sure is appears behind other children
-        self.addChild(background)
+        cameraNode.addChild(background)
     }
 
     
@@ -239,24 +255,20 @@ extension SnakeGameScene {
         for i in 0..<startingSize {
             let snakeBody = SKSpriteNode(imageNamed: "snakeBodyBlue")
             snakeBody.name = "SnakeBodyBlue"
-            // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
-//            snakeBody.anchorPoint = .zero
-            snakeBody.position = CGPoint(x: playableRect.width/2 + (4 + CGFloat(i)) * snakeSize.width, y: playableRect.height/2)
+            snakeBody.position = CGPoint(x: (4 + CGFloat(i)) * snakeSize.width, y: 0)
             snakeBody.size = snakeSize
-            snakeBody.zPosition = 51.0 // Above pause button but under controls
-            self.addChild(snakeBody)
+            snakeBody.zPosition = 45.0
+            cameraNode.addChild(snakeBody)
             snakeBlue.append(snakeBody)
         }
         
         for i in 0..<startingSize {
             let snakeBody = SKSpriteNode(imageNamed: "snakeBodyRed")
             snakeBody.name = "SnakeBodyRed"
-            // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
-//            snakeBody.anchorPoint = .zero
-            snakeBody.position = CGPoint(x: playableRect.width/2 - (4 + CGFloat(i)) * snakeSize.width, y: playableRect.height/2)
+            snakeBody.position = CGPoint(x:  -(4 + CGFloat(i)) * snakeSize.width, y: 0)
             snakeBody.size = snakeSize
-            snakeBody.zPosition = 51.0 // Above pause button but under controls
-            self.addChild(snakeBody)
+            snakeBody.zPosition = 45.0
+            cameraNode.addChild(snakeBody)
             snakeRed.append(snakeBody)
         }
     }
@@ -276,7 +288,6 @@ extension SnakeGameScene {
             snakeDirection = directionBlue
         }
 
-        
         
         switch snakeDirection {
         case Direction.up:
@@ -303,10 +314,10 @@ extension SnakeGameScene {
         for _ in 0..<maxPellets {
             let pointPellet = SKSpriteNode(imageNamed: "snakePointPellet")
             pointPellet.name = "pointPellet"
-            pointPellet.position = CGPoint(x: playableRect.width/2 + snakeSize.width * 0, y: playableRect.height/2 + snakeSize.height * 0)
+            pointPellet.position = CGPoint(x: playableRect.width/2, y: playableRect.height/2)
             pointPellet.size = pelletSize
             pointPellet.zPosition = 56.0
-            self.addChild(pointPellet)
+            cameraNode.addChild(pointPellet)
             pointPellets.append(pointPellet)
             relocatePellet(pointPellet)
         }
@@ -336,6 +347,17 @@ extension SnakeGameScene {
             }
         }
         
+        // check out of bounds
+        if (snakeBlue[0].position.y < CGFloat(minHeight) * snakeSize.height || snakeBlue[0].position.y > CGFloat(maxHeight) * snakeSize.height ||
+            snakeBlue[0].position.x < CGFloat(minWidth) * snakeSize.width || snakeBlue[0].position.x > CGFloat(maxWidth) * snakeSize.width) {
+            collidedBlue = true
+        }
+        if (snakeRed[0].position.y < CGFloat(minHeight) * snakeSize.height || snakeRed[0].position.y > CGFloat(maxHeight) * snakeSize.height ||
+            snakeRed[0].position.x < CGFloat(minWidth) * snakeSize.width || snakeRed[0].position.x > CGFloat(maxWidth) * snakeSize.width) {
+            collidedRed = true
+        }
+        
+        
         if collidedBlue {
             for node in snakeBlue {
                 node.texture = SKTexture(imageNamed: "snakeBodyDead")
@@ -351,7 +373,7 @@ extension SnakeGameScene {
 
     }
     
-    func checkPelletPickup() {
+    func checkPelletEaten() {
         for pellet in pointPellets {
             if snakeBlue[0].position == pellet.position {
                 addSnakeNodes(to: snakeBlue, numNodes: 3)
@@ -367,31 +389,12 @@ extension SnakeGameScene {
     func relocatePellet(_ pellet: SKSpriteNode) {
         // while invalid location
         var locationInvalid = true
-        var maxHeight = 0
-        var minHeight = 0
-        var maxWidth = 0
-        var minWidth = 0
-        
-        while playableRect.width/2 + snakeSize.width * CGFloat(maxWidth) < playableRect.width {
-            maxWidth += 1
-        }
-        while playableRect.width/2 + snakeSize.width * CGFloat(minWidth) > 0 {
-            minWidth -= 1
-        }
-        while playableRect.height/2 + snakeSize.height * CGFloat(maxHeight) < playableRect.height {
-            maxHeight += 1
-        }
-        while playableRect.height/2 + snakeSize.height * CGFloat(minHeight) > 0 {
-            minHeight -= 1
-        }
         
         print("minH: \(minHeight), maxH: \(maxHeight), minW: \(minWidth), maxW: \(maxWidth)")
         while locationInvalid {
             locationInvalid = false
             // put in playable rect
-
-            
-            pellet.position = CGPoint(x: playableRect.width/2 + snakeSize.width * CGFloat(Int.random(in: minWidth...maxWidth)), y: playableRect.height/2 + snakeSize.height * CGFloat(Int.random(in: minHeight...maxHeight)))
+            pellet.position = CGPoint(x: snakeSize.width * CGFloat(Int.random(in: minWidth...maxWidth)), y: snakeSize.height * CGFloat(Int.random(in: minHeight...maxHeight)))
             
             // don't put on top of another pellet
             for p in pointPellets {
@@ -414,6 +417,10 @@ extension SnakeGameScene {
             if pellet.intersects(upButtonBlueNode) || pellet.intersects(downButtonBlueNode) || pellet.intersects(leftButtonBlueNode) || pellet.intersects(rightButtonBlueNode) || pellet.intersects(upButtonRedNode) || pellet.intersects(downButtonRedNode) || pellet.intersects(leftButtonRedNode) || pellet.intersects(rightButtonRedNode) {
                 locationInvalid = true
             }
+            
+            if pellet.intersects(pauseButtonNode) {
+                locationInvalid = true
+            }
         }
     }
     
@@ -427,12 +434,10 @@ extension SnakeGameScene {
         for _ in 0..<numNodes {
             let snakeBody = SKSpriteNode(imageNamed: snakeImageName)
             snakeBody.name = snake[0].name
-            // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
-//            snakeBody.anchorPoint = .zero
             snakeBody.position = lastNodePos
             snakeBody.size = snakeSize
-            snakeBody.zPosition = 51.0 // Above pause button but under controls
-            self.addChild(snakeBody)
+            snakeBody.zPosition = 45.0 // Above pause button but under controls
+            cameraNode.addChild(snakeBody)
             if snake[0].name == "SnakeBodyBlue" {
                 snakeBlue.append(snakeBody)
             } else {
@@ -445,20 +450,7 @@ extension SnakeGameScene {
     func createCamera() {
         self.addChild(cameraNode)
         camera = cameraNode
-        cameraNode.position = CGPoint(x: frame.midX, y: frame.midY)
-    }
-    
-    func setupScore() {
-        
-//        scoreLabel.text = "\(playerScore)"
-        scoreLabel.fontSize = 60.0
-        scoreLabel.horizontalAlignmentMode = .left
-        scoreLabel.verticalAlignmentMode = .top
-        scoreLabel.zPosition = 50.0
-//        scoreLabel.position = CGPoint(x: -playableRect.width/2.0 + coinIcon.frame.width*2.0 - 10.0,
-//                                      y: coinIcon.position.y + coinIcon.frame.height/2.0 - 8.0)
-        
-        cameraNode.addChild(scoreLabel)
+        cameraNode.position = CGPoint(x: playableRect.width/2, y: playableRect.height/2)//frame.midY)
     }
     
     func setupPauseButton(){
@@ -593,14 +585,14 @@ extension SnakeGameScene {
             postGamePanelTitle.text = "Game Over: Blue Wins!"
         }
         postGamePanelTitle.fontSize = 70
-        postGamePanelTitle.fontColor = SKColor.black
+        postGamePanelTitle.fontColor = SKColor.white
         postGamePanelTitle.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 50)
         postGamePanel.addChild(postGamePanelTitle)
         
         let postGamePanelMessage = SKLabelNode(fontNamed: "rimouski sb")
-//        postGamePanelMessage.text = "\(playerScore) - \(playerScore + 1)"
+//        postGamePanelMessage.text = "\(snakeRed.count) - \(snakeBlue.count)"
         postGamePanelMessage.fontSize = 60
-        postGamePanelMessage.fontColor = SKColor.black
+        postGamePanelMessage.fontColor = SKColor.white
         postGamePanelMessage.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 5)
         postGamePanel.addChild(postGamePanelMessage)
         
