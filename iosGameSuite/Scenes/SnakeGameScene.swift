@@ -255,7 +255,7 @@ extension SnakeGameScene {
         for i in 0..<startingSize {
             let snakeBody = SKSpriteNode(imageNamed: "snakeBodyBlue")
             snakeBody.name = "SnakeBodyBlue"
-            snakeBody.position = CGPoint(x: (4 + CGFloat(i)) * snakeSize.width, y: 0)
+            snakeBody.position = CGPoint(x: (7 + CGFloat(i)) * snakeSize.width, y: 0)
             snakeBody.size = snakeSize
             snakeBody.zPosition = 45.0
             cameraNode.addChild(snakeBody)
@@ -265,7 +265,7 @@ extension SnakeGameScene {
         for i in 0..<startingSize {
             let snakeBody = SKSpriteNode(imageNamed: "snakeBodyRed")
             snakeBody.name = "SnakeBodyRed"
-            snakeBody.position = CGPoint(x:  -(4 + CGFloat(i)) * snakeSize.width, y: 0)
+            snakeBody.position = CGPoint(x:  -(7 + CGFloat(i)) * snakeSize.width, y: 0)
             snakeBody.size = snakeSize
             snakeBody.zPosition = 45.0
             cameraNode.addChild(snakeBody)
