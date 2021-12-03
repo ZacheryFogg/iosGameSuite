@@ -13,6 +13,7 @@ class playerNode : SKSpriteNode {
     
     var lives: Int!
     var canFire: Bool!
+    var cooldownLeft: CGFloat!
     var velocityMultiplier: CGFloat!
     init(imageNamed: String, lives: Int, velocity: CGFloat) {
         let texture = SKTexture(imageNamed: imageNamed)
@@ -20,7 +21,9 @@ class playerNode : SKSpriteNode {
         
         self.lives = lives
         self.velocityMultiplier = velocity
-        self.canFire = true
+        self.cooldownLeft = 0.0
+        self.canFire = self.cooldownLeft == 0.0 ? true : false
+        
     }
     
     func decrementLives(){
@@ -81,14 +84,14 @@ class TankGameScene: SKScene {
     let boundaryWidth: CGFloat = 5
     let wallWidth: CGFloat = 10
     
-    let bottomControlPanelHeight: CGFloat = 70.0
+    let bottomControlPanelHeight: CGFloat = 50.0
     var bottomControlPanel: SKSpriteNode!
     
     // Each player is represented by a tank
     var playerRed: playerNode!
     var playerBlue: playerNode!
     
-    let defaultMissileLaunchCooldown: CGFloat = 5.0
+    let defaultMissileLaunchCooldown: CGFloat = 4.0
     
     var redScoreNode: SKLabelNode!
     var blueScoreNode: SKLabelNode!
@@ -101,7 +104,7 @@ class TankGameScene: SKScene {
     
     var powerUp: SKSpriteNode! // TODO: Add multiple powerUp types
 
-    
+        
     var walls: [SKShapeNode] = []
     
     var missiles: [missileNode] = []
@@ -139,7 +142,7 @@ class TankGameScene: SKScene {
     let redCooldownNodeName = "redCooldownNode"
     let blueCooldownNodeName = "blueCooldownNode"
     
-    var playerRedCooldown: CGFloat = 0.0
+    let originalCooldownNodeWidth: CGFloat = 70.0
 
     //MARK: - Systems
     override func didMove(to view: SKView) {
@@ -195,38 +198,51 @@ class TankGameScene: SKScene {
                 let pos = CGPoint(x:  playerBlue.position.x + ((missileRadius * 7.5) * cos(rad)), y: playerBlue.position.y + ((missileRadius*7.5) * sin(rad)))
                 createMissile(positionAt: pos, withVelocity: CGVector(dx: cos(rad) * 200, dy:sin(rad)*200))
                 
-                self.handleMissileLaunchCooldown(player: playerBlue, cooldownTime: defaultMissileLaunchCooldown)
-                
+                playerBlue.cooldownLeft = defaultMissileLaunchCooldown
             } else if node.name == redLaunchMissileButtonNodeName && !imminentReset && playerRed.canFire{
                 let rad = playerRed.zRotation + Double.pi/2
                 let pos = CGPoint(x:  playerRed.position.x + ((missileRadius*9.0) * cos(rad)), y: playerRed.position.y + ((missileRadius*9.0) * sin(rad)))
                 createMissile(positionAt: pos, withVelocity: CGVector(dx: cos(rad) * 200, dy:sin(rad)*200))
                 
 //                self.handleMissileLaunchCooldown(player: playerRed, cooldownTime: defaultMissileLaunchCooldown)
-                playerRedCooldown = defaultMissileLaunchCooldown
+                playerRed.cooldownLeft = defaultMissileLaunchCooldown
             }
             
         }
     }
     
     // Update Game State
-    override func update(_ currentTime: TimeInterval) {
+    
+    func handleCooldown(player: playerNode, cooldownNode: SKSpriteNode){
         
-        if playerRedCooldown > 0.0{
-            playerRed.canFire = false
-            playerRedCooldown -= CGFloat(dt)
+        if player.cooldownLeft > 0.0{
+            player.canFire = false
+            updateCooldownNode(cooldownNode: cooldownNode, originalTime: defaultMissileLaunchCooldown, timeLeft: player.cooldownLeft)
+            player.cooldownLeft -= CGFloat(dt)
+            
         } else {
-            playerRed.canFire = true
-            playerRedCooldown = 0.0
+            player.canFire = true
+            player.cooldownLeft = 0.0
+            cooldownNode.size = CGSize(width: originalCooldownNodeWidth, height: cooldownNode.frame.height)
         }
         
+    }
+    
+    func updateCooldownNode(cooldownNode: SKSpriteNode ,originalTime: CGFloat, timeLeft: CGFloat){
+        let percentTimeLeft = timeLeft/originalTime
         
+        let newCooldownNodeWidth = originalCooldownNodeWidth * percentTimeLeft
+        
+        cooldownNode.size = CGSize(width: newCooldownNodeWidth, height: cooldownNode.frame.height)
+        
+    }
+    override func update(_ currentTime: TimeInterval) {
+ 
         if lastUpdateTime > 0 {
             dt = currentTime - lastUpdateTime
         } else {
             dt = 0
         }
-//        print("LT: \(lastUpdateTime)    CT: \(currentTime)   DT: \(dt) ")
         lastUpdateTime = currentTime
         
         if isGameOver {
@@ -237,6 +253,8 @@ class TankGameScene: SKScene {
             }
         
         } else {
+            handleCooldown(player: playerRed, cooldownNode: redCooldownNode)
+            handleCooldown(player: playerBlue, cooldownNode: blueCooldownNode)
             
             redScoreNode.text = "\(playerRed.lives!)"
             blueScoreNode.text = "\(playerBlue.lives!)"
@@ -394,7 +412,8 @@ extension TankGameScene {
     // Create player nodes and add physics bodies to them
     func createPlayers(){
         
-        let startPositionOffset = 5.0 +  boundaryWidth
+        let startPositionOffsetX = 20.0 +  boundaryWidth
+        let startPositionOffsetY = 45.0 + boundaryWidth
         let playerScaleFactor = 0.5
         
         // Red Player
@@ -404,7 +423,7 @@ extension TankGameScene {
         playerRed.name = "PlayerRed"
         playerRed.zPosition = 5.0
         playerRed.setScale(playerScaleFactor)
-        playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffset, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffset)
+        playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffsetX, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffsetY)
         
         // Set to face downwards originally
         playerRed.zRotation = 3.14
@@ -426,7 +445,7 @@ extension TankGameScene {
         playerBlue.zPosition = 5.0
         playerBlue.zRotation = 0.0
         playerBlue.setScale(playerScaleFactor)
-        playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffset, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffset)
+        playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffsetX, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffsetY)
         
         // Add physics body
         let blueScaledSize = CGSize(width: playerBlue.texture!.size().width * playerScaleFactor, height: playerBlue.texture!.size().height * playerScaleFactor)
@@ -436,6 +455,7 @@ extension TankGameScene {
         playerBlue.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Player
         playerBlue.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Powerup
         self.addChild(playerBlue)
+        
         
         // Animate Players
 //        var redTextures: [SKTexture] = []
@@ -469,28 +489,35 @@ extension TankGameScene {
     }
     
     func setupLaunchButtonsAndCooldown() {
-        let offsetFromJoystick = 10.0
+        let offsetFromJoystick = 30.0
 //        redLaunchButton = SKSpriteNode(imageNamed: "bluePlayerLaunchButton")
-        redLaunchButton = SKSpriteNode(color: .red, size: CGSize(width: 60.0, height: 40.0))
+        redLaunchButton = SKSpriteNode(color: .red, size: CGSize(width: 70.0, height: 40.0))
         redLaunchButton.name = redLaunchMissileButtonNodeName
-        redLaunchButton.zPosition = 2.0
+        redLaunchButton.zPosition = 81.0
         redLaunchButton.position = CGPoint(x: analogJoystickRed.position.x - redLaunchButton.frame.width  - offsetFromJoystick ,y: analogJoystickRed.position.y)
         
         addChild(redLaunchButton)
         
-        blueLaunchButton = SKSpriteNode(color: .blue, size: CGSize(width: 60.0, height: 40.0))
+        blueLaunchButton = SKSpriteNode(color: .blue, size: CGSize(width: 70.0, height: 40.0))
         blueLaunchButton.name = blueLaunchMissileButtonNodeName
-        blueLaunchButton.zPosition = 2.0
+        blueLaunchButton.zPosition = 81.0
         blueLaunchButton.position = CGPoint(x: analogJoystickBlue.position.x + blueLaunchButton.frame.width + offsetFromJoystick ,y: analogJoystickBlue.position.y)
         
         addChild(blueLaunchButton)
         
-        redCooldownNode = SKSpriteNode(color: .red, size: CGSize(width: 10.0, height: 40.0))
+        redCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         redCooldownNode.name = redCooldownNodeName
-        redCooldownNode.zPosition = 3.0
-        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x - redLaunchButton.frame.width/2.0 - redCooldownNode.frame.width * 2.0, y: redLaunchButton.position.y)
+        redCooldownNode.zPosition = 81.0
+        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x, y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height * 1.5)
         
         addChild(redCooldownNode)
+        
+        blueCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        blueCooldownNode.name = blueCooldownNodeName
+        blueCooldownNode.zPosition = 81.0
+        blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x, y: blueLaunchButton.position.y - blueLaunchButton.frame.height/2.0 - blueCooldownNode.frame.height * 1.5)
+        
+        addChild(blueCooldownNode)
         
     }
     // Create Powerups - Spawn them in defined range in middle of map
@@ -692,10 +719,16 @@ extension TankGameScene {
     func resetOnHit(){
         playerRed.canFire = true
         playerBlue.canFire = true
+        playerRed.cooldownLeft = 0.0
+        playerBlue.cooldownLeft = 0.0
+
         self.resetPositions()
     }
     
     func resetPositions(){
+        let startPositionOffsetX = 20.0 +  boundaryWidth
+        let startPositionOffsetY = 45.0 + boundaryWidth
+        
         if !isGameOver{
             
             for missile in missiles {
@@ -706,23 +739,17 @@ extension TankGameScene {
             playerRed.removeFromParent()
             playerBlue.removeFromParent()
             
-            let startPositionOffset = 5.0 +  boundaryWidth
             playerRed.zRotation = 3.14
-            playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffset, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffset)
+            playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffsetX, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffsetY)
             
             playerBlue.zRotation = 0.0
-            playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffset, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffset)
+            playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffsetX, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffsetY)
             self.imminentReset = false
             
             addChild(playerRed)
             addChild(playerBlue)
         }
     }
-    
-
-   
- 
-   
 }
     
 //MARK: - SKPhysicsContactDelegate
@@ -755,16 +782,14 @@ extension TankGameScene: SKPhysicsContactDelegate {
                 self.run(.sequence([
                     .wait(forDuration: 1.0),
                     .run{[weak self] in
-                        print("reset")
+                        (player as! playerNode).decrementLives()
                         self?.checkEndgameConditions()
                         self?.resetOnHit()
+                        
                 }]))
-                
-                (player as! playerNode).decrementLives()
-                
+                                
             }
         }
-    
         
         // If B is missle and A is boundary, then decrease missile life by 1 or blowup if life == 0
     
@@ -773,14 +798,6 @@ extension TankGameScene: SKPhysicsContactDelegate {
                 (missile as! missileNode).collide()
             }
         }
-        
-        
-        
-        
-        
-        
-        
-        
     }
     
 }
