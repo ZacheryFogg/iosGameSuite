@@ -153,7 +153,7 @@ class SnakeGameScene: SKScene {
             isPaused = false
         } else if node.name == quitFromPauseButtonNodeName {
             
-            let menuScene: SKScene = MenuScene(size: self.size)
+            let menuScene: SKScene = MenuScene(size: CGSize(width: self.size.width / 3, height: self.size.height / 3))
             menuScene.scaleMode = self.scaleMode
             
             self.view?.presentScene(menuScene, transition: .doorsCloseVertical(withDuration: 0.5))
@@ -183,7 +183,7 @@ class SnakeGameScene: SKScene {
             self.view?.presentScene(newGameScene, transition: .doorsOpenVertical(withDuration: 0.5))
         
         } else if node.name == quitFromPostButtonNodeName {
-            let menuScene: SKScene = MenuScene(size: self.size)
+            let menuScene: SKScene = MenuScene(size: CGSize(width: self.size.width / 3, height: self.size.height / 3))
             menuScene.scaleMode = self.scaleMode
             
             self.view?.presentScene(menuScene, transition: .doorsCloseVertical(withDuration: 0.5))
