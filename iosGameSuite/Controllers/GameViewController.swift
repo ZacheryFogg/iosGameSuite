@@ -16,7 +16,7 @@ class GameViewController: UIViewController {
         super.loadView()
         self.view = SKView()
         self.view.bounds = UIScreen.main.bounds
-
+    
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -29,8 +29,8 @@ class GameViewController: UIViewController {
         if let view = self.view as? SKView, menuScene == nil {
             let scene = MenuScene(size: view.bounds.size)
             scene.scaleMode = .resizeFill
-            print(view.bounds.size)
             view.presentScene(scene)
+//            view.showsPhysics = true
             self.menuScene = scene
         }
     }

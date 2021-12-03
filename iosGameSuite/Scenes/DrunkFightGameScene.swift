@@ -151,7 +151,7 @@ class DrunkFightGameScene: SKScene {
         } else {
             dt = 0
         }
-        
+        print(obstacles.count)
         lastUpdateTime = currentTime
         moveCamera()
         movePlayer()
@@ -234,7 +234,7 @@ extension DrunkFightGameScene {
             ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
             ground.physicsBody!.isDynamic = false
             ground.physicsBody!.affectedByGravity = false
-            ground.physicsBody!.categoryBitMask = PhysicsCategory.Ground
+            ground.physicsBody!.categoryBitMask = DrunkFightPhysicsCategory.Ground
             self.addChild(ground)
         }
     }
@@ -252,8 +252,8 @@ extension DrunkFightGameScene {
         player.physicsBody = SKPhysicsBody(circleOfRadius: player.size.width/2.0)
         player.physicsBody!.affectedByGravity = false
         player.physicsBody!.restitution = 0.0
-        player.physicsBody!.categoryBitMask = PhysicsCategory.Player
-        player.physicsBody!.contactTestBitMask = PhysicsCategory.Obstacle | PhysicsCategory.Block | PhysicsCategory.Coin
+        player.physicsBody!.categoryBitMask = DrunkFightPhysicsCategory.Player
+        player.physicsBody!.contactTestBitMask = DrunkFightPhysicsCategory.Obstacle | DrunkFightPhysicsCategory.Block | DrunkFightPhysicsCategory.Coin
         self.addChild(player)
     }
     
@@ -267,8 +267,8 @@ extension DrunkFightGameScene {
         coin.physicsBody = SKPhysicsBody(circleOfRadius: coin.size.width/2.0)
         coin.physicsBody!.affectedByGravity = false
         coin.physicsBody!.isDynamic = false
-        coin.physicsBody!.categoryBitMask = PhysicsCategory.Coin
-        coin.physicsBody!.contactTestBitMask = PhysicsCategory.Player
+        coin.physicsBody!.categoryBitMask = DrunkFightPhysicsCategory.Coin
+        coin.physicsBody!.contactTestBitMask = DrunkFightPhysicsCategory.Player
         
         addChild(coin)
         
@@ -310,11 +310,11 @@ extension DrunkFightGameScene {
         sprite.physicsBody!.isDynamic = false
         
         if sprite.name == "Block" {
-            sprite.physicsBody!.categoryBitMask = PhysicsCategory.Block
+            sprite.physicsBody!.categoryBitMask = DrunkFightPhysicsCategory.Block
         } else if sprite.name == "Obstacle" {
-            sprite.physicsBody!.categoryBitMask = PhysicsCategory.Obstacle
+            sprite.physicsBody!.categoryBitMask = DrunkFightPhysicsCategory.Obstacle
         }
-        sprite.physicsBody!.contactTestBitMask = PhysicsCategory.Player
+        sprite.physicsBody!.contactTestBitMask = DrunkFightPhysicsCategory.Player
         
         addChild(sprite)
         
@@ -542,20 +542,20 @@ extension DrunkFightGameScene {
 extension DrunkFightGameScene: SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
-        let other = contact.bodyA.categoryBitMask == PhysicsCategory.Player ? contact.bodyB : contact.bodyA
+        let other = contact.bodyA.categoryBitMask == DrunkFightPhysicsCategory.Player ? contact.bodyB : contact.bodyA
         
         switch other.categoryBitMask {
             
-        case PhysicsCategory.Block:
+        case DrunkFightPhysicsCategory.Block:
             cameraMovePointPerSecond += 150.0
             playerScore-=1
             if playerScore <= 0 {
                 playerScore = 0
             }
             scoreLabel.text = "\(playerScore)"
-        case PhysicsCategory.Obstacle:
+        case DrunkFightPhysicsCategory.Obstacle:
             decrementLife()
-        case PhysicsCategory.Coin:
+        case DrunkFightPhysicsCategory.Coin:
             if let node = other.node {
                 node.removeFromParent()
                 playerScore+=1

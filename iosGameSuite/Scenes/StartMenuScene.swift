@@ -16,7 +16,7 @@ class MenuScene: SKScene {
     
     let DemoGame = ButtonNode(imageNamed: "ninja")
     let ClayGame = ButtonNode(imageNamed: "cowboy")
-    let TankGame = ButtonNode(imageNamed: "tankIcon")
+    let TankGame = ButtonNode(imageNamed: "blueTank")
     let LilKGame = ButtonNode(imageNamed: "log")
     
     var settingsContainerNode = SKSpriteNode()
