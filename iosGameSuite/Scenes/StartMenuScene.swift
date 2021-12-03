@@ -14,13 +14,12 @@ class MenuScene: SKScene {
     //MARK: - Properties
     let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
-    let ClayGame1 = ButtonNode(imageNamed: "ninja")
-    let ClayGame2 = ButtonNode(imageNamed: "cowboy")
-    let ZachGame1 = ButtonNode(imageNamed: "cowboy")
-    let ZachGame2 = ButtonNode(imageNamed: "cowboy")
-    let LilKGame1 = ButtonNode(imageNamed: "snakeGameIcon")
-    let LilKGame2 = ButtonNode(imageNamed: "cowboy")
+    let DemoGame = ButtonNode(imageNamed: "ninja")
+    let ClayGame = ButtonNode(imageNamed: "cowboy")
+    let TankGame = ButtonNode(imageNamed: "tankIcon")
+    let LilKGame = ButtonNode(imageNamed: "log")
     
+    var settingsContainerNode = SKSpriteNode()
     //MARK: - Systems
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
         
@@ -37,35 +36,31 @@ class MenuScene: SKScene {
 //        let buttonW = button.frame.width
 //        let buttonH = button.frame.height
         
-        ClayGame1.name = "ClayGame1"
-        ClayGame2.name = "ClayGame2"
-        ZachGame1.name = "ZachGame1"
-        ZachGame2.name = "ZachGame2"
-        LilKGame1.name = "LilKGame1"
-        LilKGame1.size = CGSize(width: frame.width / 5, height: frame.width / 5)
-        LilKGame2.name = "LilKGame2"
+        DemoGame.name = "DemoGame"
+        ClayGame.name = "ClayGame"
+        TankGame.name = "TankGame"
+        LilKGame.name = "LogDodgeGame"
+        
+        DemoGame.setScale(0.5)
+        ClayGame.setScale(0.5)
+        TankGame.setScale(0.5)
+        LilKGame.setScale(0.5)
 
         
         let frameW = frame.width
         let frameH = frame.height
         
-        
-        
-        let ButtonNodes = [ClayGame1, ClayGame2, ZachGame1, ZachGame2, LilKGame1, LilKGame2]
-        
-        let bottomRowTopMargin: Int = 10
-        
-        let xs = [frameW * (1/4), frameW * (2/4), frameW * (3/4)].map {Int($0)}
-        let ys = [frameH * (1/3), frameH * (2/3)].map {Int($0) - bottomRowTopMargin }
+        let ButtonNodes = [DemoGame, ClayGame, TankGame, LilKGame]
+                
+        let xs = [frameW * (1/5), frameW * (2/5), frameW * (3/5), frameW * (4/5)].map {Int($0)}
         
         var i = 0
         for x in xs{
-            for y in ys{
-                let node = ButtonNodes[i]
-                node.position = CGPoint(x: x, y: y)
-                self.addChild(node)
-                i+=1
-            }
+            let node = ButtonNodes[i]
+            node.position = CGPoint(x: x, y: Int(frameH/2.0))
+            self.addChild(node)
+            i+=1
+            
         }
     }
     
@@ -82,26 +77,57 @@ class MenuScene: SKScene {
         // Switch to determine which scene to display
         switch node.name {
             
-        case ClayGame1.name:
+        case DemoGame.name:
 //            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
             gameScene = DrunkFightGameScene(size: self.size)
-        case ClayGame2.name:
+        case ClayGame.name:
             gameScene = InfiniteJSONScene(size: self.size)
-        case ZachGame1.name:
+        case TankGame.name:
+            gameScene = TankGameScene(size: self.size)
+        case LilKGame.name:
             gameScene = InfiniteJSONScene(size: self.size)
-        case ZachGame1.name:
-            gameScene = InfiniteJSONScene(size: self.size)
-        case LilKGame1.name:
-            gameScene = SnakeGameScene(size: self.size)
-        case LilKGame2.name:
-            let temp = PostGameScene(size: self.size)
-            temp.passGameInfo(from: InfiniteJSONScene(size: self.size), redScore: 2, blueScore: 5)
-            gameScene = temp
         default:
             return
         }
         gameScene.scaleMode = self.scaleMode
         self.view?.presentScene(gameScene, transition: .doorsOpenVertical(withDuration: 0.5))
+        
+        
+    }
+    
+    func setupSettingsContainer(){
+        settingsContainerNode = SKSpriteNode()
+        settingsContainerNode.name = "container"
+        settingsContainerNode.zPosition = 15.0
+        settingsContainerNode.color = UIColor(white: 0.5, alpha: 0.5)
+        settingsContainerNode.size = self.size
+        settingsContainerNode.position = CGPoint(x: size.width/2.0, y: size.height/2.0)
+        addChild(settingsContainerNode)
+        
+    }
+    
+    func setupSetting() {
+        setupSettingsContainer()
+        
+        let settingsPanel = SKSpriteNode(imageNamed: "panel")
+        settingsPanel.setScale(1.5)
+        settingsPanel.zPosition = 20.0
+        settingsPanel.position = .zero
+        settingsContainerNode.addChild(settingsPanel)
+        
+        let musicButton = SKSpriteNode(imageNamed: SKTAudio.musicEnabled ? "musicOn" : "musicOff")
+        musicButton.name = "music"
+        musicButton.setScale(0.7)
+        musicButton.zPosition = 25.0
+        musicButton.position = CGPoint(x: -musicButton.frame.width - 50.0, y: 0.0)
+        settingsContainerNode.addChild(musicButton)
+        
+        let effectButton = SKSpriteNode(imageNamed: effectEnabled ? "effectOn" : "effectOff")
+        effectButton.name = "effect"
+        effectButton.setScale(0.7)
+        effectButton.zPosition = 25.0
+        effectButton.position = CGPoint(x: musicButton.frame.width + 50.0, y: 0.0)
+        settingsPanel.addChild(effectButton)
     }
 }
 

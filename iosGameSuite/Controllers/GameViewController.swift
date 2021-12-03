@@ -10,31 +10,54 @@ import SpriteKit
 
 class GameViewController: UIViewController {
    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Takes the ViewControllers view and casts is as an instace of SKView
-        guard let view = self.view as? SKView else {return}
-        
-//        let scene = MenuScene(size: view.bounds.size)
-        let scene = MenuScene(size: CGSize(width: 2048, height: 1536))
-//        let scene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
-        scene.scaleMode = .aspectFill
+    var menuScene: MenuScene?
 
-        /*
-         If we want to make this game resizable for iPad, we may add init MenuScene in a different way... not sure yet
-         let scene = MenuScene(size: CGSize(width: 2048, height: 1536)
-         */
-        view.ignoresSiblingOrder = true
-        view.showsFPS = true
-        view.showsNodeCount = true
-        view.showsPhysics = true // draw physics bodies so that we can easily see how they behave
-        
-        view.isMultipleTouchEnabled = true
-        
-        // Present the scene. Navigate to scene that we declared above
-        view.presentScene(scene)
+    override func loadView() {
+        super.loadView()
+        self.view = SKView()
+        self.view.bounds = UIScreen.main.bounds
+
     }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupScene()
+
+    }
+
+    func setupScene(){
+        if let view = self.view as? SKView, menuScene == nil {
+            let scene = MenuScene(size: view.bounds.size)
+            scene.scaleMode = .resizeFill
+            print(view.bounds.size)
+            view.presentScene(scene)
+            self.menuScene = scene
+        }
+    }
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//
+//        // Takes the ViewControllers view and casts is as an instace of SKView
+//        guard let view = self.view as? SKView else {return}
+//
+////        let scene = MenuScene(size: view.bounds.size)
+//        let scene = MenuScene(size: CGSize(width: 2048, height: 1536))
+//
+////        let scene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
+//        scene.scaleMode = .aspectFit
+//
+//        /*
+//         If we want to make this game resizable for iPad, we may add init MenuScene in a different way... not sure yet
+//         let scene = MenuScene(size: CGSize(width: 2048, height: 1536)
+//         */
+//        view.ignoresSiblingOrder = true
+//        view.showsFPS = true
+//        view.showsNodeCount = true
+//        view.showsPhysics = true // draw physics bodies so that we can easily see how they behave
+//
+//        // Present the scene. Navigate to scene that we declared above
+//        view.presentScene(scene)
+//    }
     
     override var prefersStatusBarHidden: Bool {
         return true
