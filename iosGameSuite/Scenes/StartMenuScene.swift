@@ -14,7 +14,7 @@ class MenuScene: SKScene {
     //MARK: - Properties
     let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
-    let DemoGame = ButtonNode(imageNamed: "ninja")
+    let DemoGame = ButtonNode(imageNamed: "JSON1")
     let ClayGame = ButtonNode(imageNamed: "cowboy")
     let TankGame = ButtonNode(imageNamed: "blueTank")
     let SnakeGame = ButtonNode(imageNamed: "snakeGameIcon")
@@ -79,7 +79,7 @@ class MenuScene: SKScene {
             
         case DemoGame.name:
 //            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
-            gameScene = DrunkFightGameScene(size: self.size)
+            gameScene = InfiniteJSONScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
         case ClayGame.name:
             gameScene = SKScene(fileNamed: "AHGameScene")!
