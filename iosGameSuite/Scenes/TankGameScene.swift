@@ -23,6 +23,9 @@ class playerNode : SKSpriteNode {
     var defaultCooldown: CGFloat!
     var playerColor: String!
     var velocityMultiplier: CGFloat!
+    var powerUpDuration: CGFloat = 0.0
+    var originalPowerupDuration: CGFloat = 0.0
+    
     init(imageNamed: String, lives: Int, velocity: CGFloat, defaultCooldown: CGFloat, playerColor: String) {
         let texture = SKTexture(imageNamed: imageNamed)
         super.init(texture: texture, color: .black, size: texture.size())
@@ -110,6 +113,9 @@ class TankGameScene: SKScene {
     var redCooldownNode : SKSpriteNode!
     var blueCooldownNode: SKSpriteNode!
     
+    var redPowerupDurationNode: SKSpriteNode!
+    var bluePowerupDurationNode: SKSpriteNode!
+    
     var redLaunchButton: SKSpriteNode!
     var blueLaunchButton: SKSpriteNode!
     
@@ -158,6 +164,9 @@ class TankGameScene: SKScene {
     let redCooldownNodeName = "redCooldownNode"
     let blueCooldownNodeName = "blueCooldownNode"
     
+    let redPowerupDurationNodeName = "redPowerupDurationNode"
+    let bluePowerupDurationNodeName = "bluePowerupDurationNode"
+    
     let rapidFireNodeName = "rapidFireNode"
     let multiFireNodeName = "multiFireNode"
     let jSONFireNodeName = "jSONFireNode"
@@ -178,6 +187,7 @@ class TankGameScene: SKScene {
     let jSONFirePowerupDuration = 10.0
     
     let originalCooldownNodeWidth: CGFloat = 70.0
+    let originalPowerupNodeWidth: CGFloat = 70.0
 
     //MARK: - Systems
     override func didMove(to view: SKView) {
@@ -261,6 +271,18 @@ class TankGameScene: SKScene {
         cooldownNode.size = CGSize(width: newCooldownNodeWidth, height: cooldownNode.frame.height)
         
     }
+    
+    func handlePowerupDuration(player: playerNode, powerupNode: SKSpriteNode){
+        player.powerUpDuration -= CGFloat(dt)
+        if player.powerUpDuration <= 0.0{
+            powerupNode.removeFromParent()
+        } else {
+            
+            let percentTimeLeft = player.powerUpDuration / player.originalPowerupDuration
+            let newWidth = originalPowerupNodeWidth * percentTimeLeft
+            powerupNode.size = CGSize(width: newWidth, height: powerupNode.frame.height)
+        }
+    }
     override func update(_ currentTime: TimeInterval) {
  
         if lastUpdateTime > 0 {
@@ -280,6 +302,9 @@ class TankGameScene: SKScene {
         } else {
             handleCooldown(player: playerRed, cooldownNode: redCooldownNode)
             handleCooldown(player: playerBlue, cooldownNode: blueCooldownNode)
+            
+            if playerRed.powerUpDuration > 0.0 {handlePowerupDuration(player: playerRed, powerupNode: redPowerupDurationNode)}
+            if playerBlue.powerUpDuration > 0.0 {handlePowerupDuration(player: playerBlue, powerupNode: bluePowerupDurationNode)}
             
             redScoreNode.text = "\(playerRed.lives!)"
             blueScoreNode.text = "\(playerBlue.lives!)"
@@ -309,7 +334,6 @@ extension TankGameScene {
     // Launch missile for given player
     func handleMissileLaunch(player: playerNode){
         
-        print(player.fireMode)
         
         switch player.fireMode {
             
@@ -328,9 +352,6 @@ extension TankGameScene {
             
         // Single Fire and Rapid Fire don't require any modification
         default:
-//            let rad = player.zRotation + Double.pi/2
-//            let pos = CGPoint(x:  player.position.x + ((missileRadius * 7.5) * cos(rad)), y: player.position.y + ((missileRadius*7.5) * sin(rad)))
-//            createMissile(positionAt: pos, withVelocity: CGVector(dx: cos(rad) * 200, dy:sin(rad)*200))
             let rad = player.zRotation + Double.pi/2
             createMissile(positionAt: CGPoint(x:  player.position.x + ((missileRadius * 7.5) * cos(rad)), y: player.position.y + ((missileRadius*7.5) * sin(rad)))
                             ,withVelocity: CGVector(dx: cos(rad) * 200, dy:sin(rad)*200))
@@ -543,6 +564,7 @@ extension TankGameScene {
     
     func setupLaunchButtonsAndCooldown() {
         let offsetFromJoystick = 30.0
+        let verticalOffset = 5.0
 //        redLaunchButton = SKSpriteNode(imageNamed: "bluePlayerLaunchButton")
         redLaunchButton = SKSpriteNode(color: .red, size: CGSize(width: 70.0, height: 40.0))
         redLaunchButton.name = redLaunchMissileButtonNodeName
@@ -561,18 +583,34 @@ extension TankGameScene {
         redCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         redCooldownNode.name = redCooldownNodeName
         redCooldownNode.zPosition = 81.0
-        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x, y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height * 1.5)
+        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x,
+                                           y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
         
         addChild(redCooldownNode)
         
         blueCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         blueCooldownNode.name = blueCooldownNodeName
         blueCooldownNode.zPosition = 81.0
-        blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x, y: blueLaunchButton.position.y - blueLaunchButton.frame.height/2.0 - blueCooldownNode.frame.height * 1.5)
+        blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x,
+                                            y: blueLaunchButton.position.y - blueLaunchButton.frame.height/2.0 - blueCooldownNode.frame.height/2.0 - verticalOffset)
         
         addChild(blueCooldownNode)
         
+        redPowerupDurationNode = SKSpriteNode(color: .red, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        redPowerupDurationNode.name = redPowerupDurationNodeName
+        redPowerupDurationNode.zPosition = 81.0
+        redPowerupDurationNode.position = CGPoint(x: redCooldownNode.position.x,
+                                                  y:redCooldownNode.position.y - redCooldownNode.frame.height/2.0 - redPowerupDurationNode.frame.height/2.0 - verticalOffset)
+        
+        bluePowerupDurationNode = SKSpriteNode(color: .red, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        bluePowerupDurationNode.name = bluePowerupDurationNodeName
+        bluePowerupDurationNode.zPosition = 81.0
+        bluePowerupDurationNode.position = CGPoint(x: blueCooldownNode.position.x,
+                                                  y:blueCooldownNode.position.y - blueCooldownNode.frame.height/2.0 - bluePowerupDurationNode.frame.height/2.0 - verticalOffset)
+        
+        
     }
+    
     // Create Powerups - Spawn them in defined range in middle of map
     func setupPowerups(){
         let width = 15.0
@@ -591,7 +629,6 @@ extension TankGameScene {
         rapidFireNode.zPosition = 5.0
         rapidFireNode.physicsBody = SKPhysicsBody(circleOfRadius: rapidFireNode.frame.width/2.0).ideal().manualMovement()
         rapidFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        rapidFireNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
                 
         // Multi Fire Powerup Node
         let multiFireNode = SKSpriteNode(color: .red, size: CGSize(width: width, height: height))
@@ -599,7 +636,6 @@ extension TankGameScene {
         multiFireNode.zPosition = 5.0
         multiFireNode.physicsBody = SKPhysicsBody(circleOfRadius: multiFireNode.frame.width/2.0).ideal().manualMovement()
         multiFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        multiFireNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
         
         // JSON Fire Node
         let jSONFireNode = SKSpriteNode(color: .green, size: CGSize(width: width, height: height))
@@ -607,7 +643,6 @@ extension TankGameScene {
         jSONFireNode.zPosition = 5.0
         jSONFireNode.physicsBody = SKPhysicsBody(circleOfRadius: jSONFireNode.frame.width/2.0).ideal().manualMovement()
         jSONFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        jSONFireNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
         
         // Random Bomb Spawn
         let randomBombNode = SKSpriteNode(color: .black, size: CGSize(width: width, height: height))
@@ -615,9 +650,8 @@ extension TankGameScene {
         randomBombNode.zPosition = 5.0
         randomBombNode.physicsBody = SKPhysicsBody(circleOfRadius: randomBombNode.frame.width/2.0).ideal().manualMovement()
         randomBombNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        randomBombNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
         
-//        possiblePowerups.append(rapidFireNode)
+        possiblePowerups.append(rapidFireNode)
         possiblePowerups.append(multiFireNode)
 //        possiblePowerups.append(jSONFireNode)
 //        possiblePowerups.append(randomBombNode)
@@ -863,6 +897,10 @@ extension TankGameScene {
             self.activePowerup = nil
         }
         
+        if redPowerupDurationNode.inParentHierarchy(self){redPowerupDurationNode.removeFromParent()}
+        if bluePowerupDurationNode.inParentHierarchy(self){bluePowerupDurationNode.removeFromParent()}
+
+        
         playerBlue.fireMode = Powerups.SingleFire
         playerRed.fireMode = Powerups.SingleFire
     }
@@ -890,6 +928,22 @@ extension TankGameScene {
             
             addChild(playerRed)
             addChild(playerBlue)
+        }
+    }
+    
+    func addPowerupDurationNodeForPlayer(player: playerNode){
+        if player.playerColor == playerRed.playerColor{
+            // If node is already a child of self
+            if redPowerupDurationNode.inParentHierarchy(self){
+                redPowerupDurationNode.removeFromParent()
+            }
+            addChild(redPowerupDurationNode)
+            
+        } else if player.playerColor == playerBlue.playerColor {
+            if bluePowerupDurationNode.inParentHierarchy(self){
+                bluePowerupDurationNode.removeFromParent()
+            }
+            addChild(bluePowerupDurationNode)
         }
     }
 }
@@ -948,15 +1002,22 @@ extension TankGameScene: SKPhysicsContactDelegate {
                 switch powerup.name {
                     
                 case rapidFireNodeName:
-                    print("rapidFire")
                     player.fireMode = Powerups.RapidFire
                     let rapidFireAction = SKAction.sequence([
-                        .run {player.currentMaxCooldown = self.rapidFireCooldownTime},
+                        .run
+                        {
+                            self.addPowerupDurationNodeForPlayer(player: player)
+                            player.currentMaxCooldown = self.rapidFireCooldownTime
+                            player.powerUpDuration = self.rapidFirePowerupDuration
+                            player.originalPowerupDuration = self.rapidFirePowerupDuration
+                        },
                         .wait(forDuration: rapidFirePowerupDuration),
                         .run
                         {
                             player.fireMode = Powerups.SingleFire
                             player.currentMaxCooldown = self.singleFireCooldownTime
+                            player.powerUpDuration = 0.0
+                            player.originalPowerupDuration = 0.0
                         }
                     ])
                     print("activePowerupActionKey_\(player.playerColor!)")
@@ -964,15 +1025,22 @@ extension TankGameScene: SKPhysicsContactDelegate {
                     
                     
                 case multiFireNodeName:
-                    print("mutliFire")
                     player.fireMode = Powerups.MultiFire
                     let multiFireAction = SKAction.sequence([
-                        .run {player.currentMaxCooldown = self.multiFireCooldownTime},
+                        .run
+                        {
+                            self.addPowerupDurationNodeForPlayer(player: player)
+                            player.currentMaxCooldown = self.multiFireCooldownTime
+                            player.powerUpDuration = self.multiFirePowerupDuration
+                            player.originalPowerupDuration = self.multiFirePowerupDuration
+                        },
                         .wait(forDuration: multiFirePowerupDuration),
                         .run
                         {
                             player.fireMode = Powerups.SingleFire
                             player.currentMaxCooldown = self.singleFireCooldownTime
+                            player.powerUpDuration = 0.0
+                            player.originalPowerupDuration = 0.0
                         }
                     ])
                     self.run(multiFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
@@ -983,12 +1051,21 @@ extension TankGameScene: SKPhysicsContactDelegate {
                 case jSONFireNodeName:
                     player.fireMode = Powerups.jSONFire
                     let jSONFireAction = SKAction.sequence([
-                        .run {player.currentMaxCooldown = self.jSONFireCooldownTime},
+                        .run
+                        {
+                            self.addPowerupDurationNodeForPlayer(player: player)
+                            player.currentMaxCooldown = self.jSONFireCooldownTime
+                            player.powerUpDuration = self.jSONFirePowerupDuration
+                            player.originalPowerupDuration = self.jSONFirePowerupDuration
+                            
+                        },
                         .wait(forDuration: multiFirePowerupDuration),
                         .run
                         {
                             player.fireMode = Powerups.SingleFire
                             player.currentMaxCooldown = self.singleFireCooldownTime
+                            player.powerUpDuration = 0.0
+                            player.originalPowerupDuration = 0.0
                         }
                     ])
                     self.run(jSONFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
@@ -1008,24 +1085,24 @@ extension TankGameScene: SKPhysicsContactDelegate {
         
         
         else if(B == TankGamePhysicsCategory.Missile && A == TankGamePhysicsCategory.Powerup) {
+            print("why whyfbweuf")
             if let powerup = contact.bodyA.node, let missile = contact.bodyB.node {
                 self.createExplosion(position: missile.position, scale: CGFloat(1.0), timePerFrame: 0.08)
                 missile.removeFromParent()
                 powerup.removeFromParent()
                 activePowerup = nil
                 
-                
             }
             
             
             
         } else if(B == TankGamePhysicsCategory.Powerup && A == TankGamePhysicsCategory.Missile) {
+            print("will this ever get contacted")
             if let missile = contact.bodyA.node, let powerup = contact.bodyB.node {
                 self.createExplosion(position: missile.position, scale: CGFloat(1.0), timePerFrame: 0.08)
                 missile.removeFromParent()
                 powerup.removeFromParent()
                 activePowerup = nil
-                
                 
             }
         }
