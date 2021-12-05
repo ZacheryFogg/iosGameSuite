@@ -30,7 +30,7 @@ class GameViewController: UIViewController {
             let scene = MenuScene(size: view.bounds.size)
             scene.scaleMode = .resizeFill
             view.presentScene(scene)
-            view.showsPhysics = true
+            view.showsPhysics = false
             self.menuScene = scene
         }
     }

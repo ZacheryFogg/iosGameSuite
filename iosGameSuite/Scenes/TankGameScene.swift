@@ -25,6 +25,7 @@ class playerNode : SKSpriteNode {
     var velocityMultiplier: CGFloat!
     var powerUpDuration: CGFloat = 0.0
     var originalPowerupDuration: CGFloat = 0.0
+    var isMoving: Bool = false
     
     init(imageNamed: String, lives: Int, velocity: CGFloat, defaultCooldown: CGFloat, playerColor: String) {
         let texture = SKTexture(imageNamed: imageNamed)
@@ -80,7 +81,7 @@ class TankGameScene: SKScene {
     //MARK: - Properties
     
     lazy var analogJoystickBlue: AnalogJoystick = {
-        let js = AnalogJoystick(diameter: 75, colors: nil, images: (substrate: #imageLiteral(resourceName: "jSubstrate"), stick: #imageLiteral(resourceName: "jSubstrate")))
+        let js = AnalogJoystick(diameter: 75, colors: (substrate: .blue, stick: .blue), images: (substrate: #imageLiteral(resourceName: "jSubstrate"), stick: #imageLiteral(resourceName: "jSubstrate")))
         js.position = CGPoint(x: 0 + js.radius + boundaryWidth + 20 , y: 0 + js.radius + 20)
         js.zPosition = 30.0
         return js
@@ -123,6 +124,9 @@ class TankGameScene: SKScene {
 
         
     var walls: [SKShapeNode] = []
+    
+    var redTextures: [SKTexture] = []
+    var blueTextures: [SKTexture] = []
     
     var possiblePowerups: [SKSpriteNode] = []
     var possiblePowerupPositions: [CGPoint]!
@@ -198,6 +202,9 @@ class TankGameScene: SKScene {
     
     var bombInProgress = false
 
+    var prevRedPos: CGPoint!
+    var prevBluePos: CGPoint!
+    
     //MARK: - Systems
     override func didMove(to view: SKView) {
         self.startGame()
@@ -292,6 +299,10 @@ class TankGameScene: SKScene {
             powerupNode.size = CGSize(width: newWidth, height: powerupNode.frame.height)
         }
     }
+    
+
+    
+
     override func update(_ currentTime: TimeInterval) {
  
         if lastUpdateTime > 0 {
@@ -299,6 +310,34 @@ class TankGameScene: SKScene {
         } else {
             dt = 0
         }
+        if (playerRed.position.x == prevRedPos.x && playerRed.position.y == prevRedPos.y){
+            playerRed.removeAction(forKey: "animation")
+            playerRed.texture = SKTexture(imageNamed: "redTank1")
+            playerRed.isMoving = false
+        } else {
+            
+            if !playerRed.isMoving{
+                playerRed.run(.repeatForever(.animate(with: redTextures, timePerFrame: 0.02)), withKey: "animation")
+            }
+        
+            playerRed.isMoving = true
+            prevRedPos = playerRed.position
+        }
+        
+        if (playerBlue.position.x == prevBluePos.x && playerBlue.position.y == prevBluePos.y){
+            playerBlue.removeAction(forKey: "animation")
+            playerBlue.texture = SKTexture(imageNamed: "blueTank1")
+            playerBlue.isMoving = false
+        } else {
+            
+            if !playerBlue.isMoving{
+                playerBlue.run(.repeatForever(.animate(with: blueTextures, timePerFrame: 0.02)), withKey: "animation")
+            }
+        
+            playerBlue.isMoving = true
+            prevBluePos = playerBlue.position
+        }
+        
         lastUpdateTime = currentTime
         
         if isGameOver {
@@ -404,6 +443,7 @@ extension TankGameScene {
                                            y: self.playerRed.position.y + (data.velocity.y * playerRed.velocityMultiplier))
                 self.playerRed.zRotation = data.angular
                 }
+//            print("RT X: \(data.velocity.x)  Y: \(data.velocity.y)")
         }
         
         analogJoystickBlue.trackingHandler = { [unowned self] data in
@@ -433,10 +473,30 @@ extension TankGameScene {
 
             
             boundary.position = CGPoint(x: x, y: self.size.height/2.0)
-            boundary.strokeColor = .black
-            boundary.fillColor = .white
+            boundary.strokeColor = .lightGray
+            boundary.fillColor = .lightGray
+            boundary.zPosition = 100.0
+
 
             self.addChild(boundary)
+            
+            let shadow = SKSpriteNode(color: .lightGray, size: boundarySize)
+            shadow.blendMode = SKBlendMode.alpha
+            shadow.colorBlendFactor = 1
+            shadow.color = SKColor.black
+            shadow.zPosition = 1.0
+            shadow.alpha = 0.3
+            shadow.position = CGPoint(x: boundary.position.x + 2.5, y: boundary.position.y)
+            self.addChild(shadow)
+            
+            let shadow2 = SKSpriteNode(color: .lightGray, size: boundarySize)
+            shadow2.blendMode = SKBlendMode.alpha
+            shadow2.colorBlendFactor = 1
+            shadow2.color = SKColor.black
+            shadow2.zPosition = 1.0
+            shadow2.alpha = 0.3
+            shadow2.position = CGPoint(x: boundary.position.x + 5.0, y: boundary.position.y)
+            self.addChild(shadow2)
             
         }
         func createHorizontalBoundary(y: CGFloat){
@@ -447,9 +507,28 @@ extension TankGameScene {
 
             
             boundary.position = CGPoint(x: self.frame.width/2.0, y: y)
-            boundary.strokeColor = .black
-            boundary.fillColor = .white
+            boundary.strokeColor = .lightGray
+            boundary.fillColor = .lightGray
+            boundary.zPosition = 3.0
             self.addChild(boundary)
+            
+            let shadow = SKSpriteNode(color: .lightGray, size: boundarySize)
+            shadow.blendMode = SKBlendMode.alpha
+            shadow.colorBlendFactor = 1
+            shadow.color = SKColor.black
+            shadow.zPosition = 1.0
+            shadow.alpha = 0.3
+            shadow.position = CGPoint(x: boundary.position.x, y: boundary.position.y - 2.5)
+            self.addChild(shadow)
+            
+            let shadow2 = SKSpriteNode(color: .lightGray, size: boundarySize)
+            shadow2.blendMode = SKBlendMode.alpha
+            shadow2.colorBlendFactor = 1
+            shadow2.color = SKColor.black
+            shadow2.zPosition = 1.0
+            shadow2.alpha = 0.3
+            shadow2.position = CGPoint(x: boundary.position.x, y: boundary.position.y - 5.0)
+            self.addChild(shadow2)
         }
         
         createVeritcalBoundary(x: boundaryWidth/2.0)
@@ -467,9 +546,29 @@ extension TankGameScene {
             wall.physicsBody = SKPhysicsBody(rectangleOf: size).ideal().manualMovement()
             
             wall.position = position
-            wall.strokeColor = .black
-            wall.fillColor = .white
+            wall.strokeColor = .lightGray
+            wall.fillColor = .lightGray
+            wall.zPosition = 2.0
             wall.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Boundary
+            
+            let shadow = SKSpriteNode(color: .lightGray, size: size)
+            shadow.blendMode = SKBlendMode.alpha
+            shadow.colorBlendFactor = 1
+            shadow.color = SKColor.black
+            shadow.zPosition = 1.0
+            shadow.alpha = 0.25
+            shadow.position = CGPoint(x: position.x + 3.5, y: position.y - 3.5)
+            
+            let shadow2 = SKSpriteNode(color: .lightGray, size: size)
+            shadow2.blendMode = SKBlendMode.alpha
+            shadow2.colorBlendFactor = 1
+            shadow2.color = SKColor.black
+            shadow2.zPosition = 1.0
+            shadow2.alpha = 0.25
+            shadow2.position = CGPoint(x: position.x + 7.0, y: position.y - 7.0)
+            
+            self.addChild(shadow)
+            self.addChild(shadow2)
 
             self.addChild(wall)
         }
@@ -481,16 +580,16 @@ extension TankGameScene {
         createWall(position: CGPoint(x: (self.size.width/4.0) * 3 - 20, y: (self.size.height/2.0) - 40), size: CGSize(width: 50.0, height: 10))
         
         createWall(position: CGPoint(x: frame.midX + 30.0, y: bottomControlPanelHeight + boundaryWidth + 30.0),
-                   size: CGSize(width: 10.0, height: 60.0))
+                   size: CGSize(width: 10.0, height: 80.0))
         
         createWall(position: CGPoint(x: frame.midX - 30.0, y: frame.height - boundaryWidth - 30.0),
-                   size: CGSize(width: 10.0, height: 60.0))
+                   size: CGSize(width: 10.0, height: 80.0))
         
         createWall(position: CGPoint(x: frame.width - 30.0 - boundaryWidth, y: frame.midY + 30.0),
-                   size: CGSize(width: 60.0, height: 10.0))
+                   size: CGSize(width: 80.0, height: 10.0))
         
         createWall(position: CGPoint(x: 0 + 30.0 + boundaryWidth, y: frame.midY - 30.0),
-                   size: CGSize(width: 60.0, height: 10.0))
+                   size: CGSize(width: 80.0, height: 10.0))
         
         
         
@@ -498,7 +597,7 @@ extension TankGameScene {
     }
     
     func createBackground(){
-        let background = SKSpriteNode(imageNamed: "altBackground2")
+        let background = SKSpriteNode(imageNamed: "testBackground")
         background.name = "Background"
         // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
         background.anchorPoint = .zero
@@ -516,7 +615,7 @@ extension TankGameScene {
         // Red Player
         
         // Create and position
-        playerRed = playerNode(imageNamed: "redTank", lives: playerStartLives, velocity: startPlayerVelocityMultiplier, defaultCooldown: singleFireCooldownTime, playerColor: "red")
+        playerRed = playerNode(imageNamed: "redTank1", lives: playerStartLives, velocity: startPlayerVelocityMultiplier, defaultCooldown: singleFireCooldownTime, playerColor: "red")
         playerRed.name = "PlayerRed"
         playerRed.zPosition = 5.0
         playerRed.setScale(playerScaleFactor)
@@ -537,7 +636,7 @@ extension TankGameScene {
         // Blue Player
         
         // Create and position
-        playerBlue = playerNode(imageNamed: "blueTank", lives: playerStartLives, velocity: startPlayerVelocityMultiplier, defaultCooldown: singleFireCooldownTime, playerColor: "blue")
+        playerBlue = playerNode(imageNamed: "blueTank1", lives: playerStartLives, velocity: startPlayerVelocityMultiplier, defaultCooldown: singleFireCooldownTime, playerColor: "blue")
         playerBlue.name = "PlayerBlue"
         playerBlue.zPosition = 5.0
         playerBlue.zRotation = -(3.14/2.0)
@@ -554,26 +653,28 @@ extension TankGameScene {
         
         
         // Animate Players
-//        var redTextures: [SKTexture] = []
-//        for i in 1...9 {
-//            redTextures.append(SKTexture(imageNamed: "redTank\(i)"))
-//        }
-//        playerRed.run(.repeatForever(.animate(with: redTextures, timePerFrame: 0.043)))
+        for i in 1...12 {
+            redTextures.append(SKTexture(imageNamed: "redTank\(i)"))
+        }
         
-//        var blueTextures: [SKTexture] = []
-//        for i in 1...9 {
-//            blueTextures.append(SKTexture(imageNamed: "blueTank\(i)"))
-//        }
-//        playerBlue.run(.repeatForever(.animate(with: blueTextures, timePerFrame: 0.043)))
+        for i in 1...12 {
+            blueTextures.append(SKTexture(imageNamed: "blueTank\(i)"))
+        }
+        prevRedPos = playerRed.position
+        prevBluePos = playerBlue.position
+        
+       
         
     }
+    
     
     // This will be an effective wall for the players/bullets... it will have a physics body
     func createBottomControlPanel(){
         bottomControlPanel = SKSpriteNode(color: .white, size: CGSize(width: self.frame.width, height: bottomControlPanelHeight))
         bottomControlPanel.name = "BottomControlPanel"
         bottomControlPanel.anchorPoint = .zero
-        bottomControlPanel.zPosition = 1.0
+        bottomControlPanel.color = .lightGray
+        bottomControlPanel.zPosition = 2.0
         // Set position of each ground to be i x width, so that they are horizontally stacked
         bottomControlPanel.position = CGPoint(x: 0.0, y:0.0)
     
@@ -666,6 +767,8 @@ extension TankGameScene {
         jSONFireNode.zPosition = 5.0
         jSONFireNode.physicsBody = SKPhysicsBody(circleOfRadius: jSONFireNode.frame.width/2.0).ideal().manualMovement()
         jSONFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
+        
+        
 //
         // Random Bomb Spawn
         let randomBombNodeScaleFactor = 2.0
@@ -1062,14 +1165,14 @@ extension TankGameScene {
 
         if (yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minOffset)){
             yPos = frame.height - boundaryWidth - (minOffset * 2.0)
-        } else if (yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset)){
+        } else if (yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset + bottomControlPanelHeight)){
             yPos = 0.0 + boundaryWidth + (minOffset * 2.0)
         } else {
             yPos = yPos + (yo * yDirection)
         }
                    
         let bombDuration = 1.0
-        let bombScale = 2.0
+        let bombScale = 1.5
         let numAnimationImages: Int = 6
         let bombNode = SKSpriteNode(imageNamed: "bomb0")
         bombNode.name = "bombNode"
