@@ -1038,30 +1038,31 @@ extension TankGameScene {
     }
     
     func spawnBombNode(player: playerNode){
-        let minOffset  = 10.0
-        let maxOffset = 20.0
+        let minOffset  = 40.0
+        let maxOffset = 70.0
         let minWallOffset = 5.0
-        
+
         var xPos = player.playerColor == "red" ? playerBlue.position.x : playerRed.position.x
         var yPos = player.playerColor == "red" ? playerBlue.position.y : playerRed.position.y
-        
+
         let xo = CGFloat(Double.random(in: minOffset...maxOffset))
         let yo = CGFloat(Double.random(in: minOffset...maxOffset))
-        
-        let xDirection = Double.random(in: -1...1) <= 0 ? -1 : 1
-        let yDirection = Double.random(in: -1...1) <= 0 ? -1 : 1
-        
-        if xPos + (xo * xDirection) >= (frame.width - boundaryWidth - minOffset){
+
+        let xDirection = CGFloat(Double.random(in: -1...1) <= 0 ? -1 : 1)
+        let yDirection = CGFloat(Double.random(in: -1...1) <= 0 ? -1 : 1)
+
+        if (xPos + (xo * xDirection) >= (frame.width - boundaryWidth - minOffset)){
             xPos = frame.width - boundaryWidth - (minOffset * 2.0)
-        } else if xPos + (xo * xDirection) <= (0.0 + boundaryWidth + minOffset){
+        }
+        else if (xPos + (xo * xDirection) <= (0.0 + boundaryWidth + minOffset)){
             xPos = 0.0 + boundaryWidth + (minOffset * 2.0)
         } else {
-            xPose = xPos + (xo * xDirection)
+            xPos = xPos + (xo * xDirection)
         }
-        
-        if yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minOffset){
+
+        if (yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minOffset)){
             yPos = frame.height - boundaryWidth - (minOffset * 2.0)
-        } else if yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset){
+        } else if (yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset)){
             yPos = 0.0 + boundaryWidth + (minOffset * 2.0)
         } else {
             yPos = yPos + (yo * yDirection)
@@ -1082,7 +1083,9 @@ extension TankGameScene {
         bombNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
         
         // Get Random Position for Bomb
-        bombNode.position = CGPoint(x: xPos, y: yPos)
+        bombNode.position = CGPoint(x: CGFloat(xPos), y: CGFloat(yPos))
+//        bombNode.position = CGPoint(x: frame.midX, y: frame.midY)
+
         
         addChild(bombNode)
         
@@ -1105,6 +1108,91 @@ extension TankGameScene {
 //MARK: - SKPhysicsContactDelegate
 extension TankGameScene: SKPhysicsContactDelegate {
     
+    
+    func handlePoweupPlayerContact(player: playerNode, powerup: SKSpriteNode) {
+        
+        switch powerup.name {
+            
+        case rapidFireNodeName:
+            player.fireMode = Powerups.RapidFire
+            let rapidFireAction = SKAction.sequence([
+                .run
+                {
+                    self.addPowerupDurationNodeForPlayer(player: player)
+                    player.currentMaxCooldown = self.rapidFireCooldownTime
+                    player.powerUpDuration = self.rapidFirePowerupDuration
+                    player.originalPowerupDuration = self.rapidFirePowerupDuration
+                },
+                .wait(forDuration: rapidFirePowerupDuration),
+                .run
+                {
+                    player.fireMode = Powerups.SingleFire
+                    player.currentMaxCooldown = self.singleFireCooldownTime
+                    player.powerUpDuration = 0.0
+                    player.originalPowerupDuration = 0.0
+                }
+            ])
+            print("activePowerupActionKey_\(player.playerColor!)")
+            self.run(rapidFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
+            
+            
+        case multiFireNodeName:
+            player.fireMode = Powerups.MultiFire
+            let multiFireAction = SKAction.sequence([
+                .run
+                {
+                    self.addPowerupDurationNodeForPlayer(player: player)
+                    player.currentMaxCooldown = self.multiFireCooldownTime
+                    player.powerUpDuration = self.multiFirePowerupDuration
+                    player.originalPowerupDuration = self.multiFirePowerupDuration
+                },
+                .wait(forDuration: multiFirePowerupDuration),
+                .run
+                {
+                    player.fireMode = Powerups.SingleFire
+                    player.currentMaxCooldown = self.singleFireCooldownTime
+                    player.powerUpDuration = 0.0
+                    player.originalPowerupDuration = 0.0
+                }
+            ])
+            self.run(multiFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
+        
+        case randomBombNodeName:
+            if !bombInProgress{
+                spawnBombNode(player: player)
+                bombInProgress = true
+            }
+        
+        case jSONFireNodeName:
+            player.fireMode = Powerups.jSONFire
+            let jSONFireAction = SKAction.sequence([
+                .run
+                {
+                    self.addPowerupDurationNodeForPlayer(player: player)
+                    player.currentMaxCooldown = self.jSONFireCooldownTime
+                    player.powerUpDuration = self.jSONFirePowerupDuration
+                    player.originalPowerupDuration = self.jSONFirePowerupDuration
+                    
+                },
+                .wait(forDuration: jSONFirePowerupDuration),
+                .run
+                {
+                    player.fireMode = Powerups.SingleFire
+                    player.currentMaxCooldown = self.singleFireCooldownTime
+                    player.powerUpDuration = 0.0
+                    player.originalPowerupDuration = 0.0
+                }
+            ])
+            self.run(jSONFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
+        
+        default:
+            player.fireMode = Powerups.SingleFire
+            print("This will never happen... right?")
+        }
+        
+        powerup.removeFromParent()
+        self.activePowerup = nil
+    }
     // Handle collisions for each player and bullets and respond appropriately... maybe bullets will just bounce appropriately if no gravity?
     func didBegin(_ contact: SKPhysicsContact) {
         let A = contact.bodyA.categoryBitMask
@@ -1190,93 +1278,12 @@ extension TankGameScene: SKPhysicsContactDelegate {
         // If the two bodies are a Player and a Powerup
         else if (B == TankGamePhysicsCategory.Powerup && A == TankGamePhysicsCategory.Player ) {
             if let powerup = contact.bodyB.node, let playerBody = contact.bodyA.node {
-                let player = (playerBody as! playerNode)
-                
-                switch powerup.name {
-                    
-                case rapidFireNodeName:
-                    player.fireMode = Powerups.RapidFire
-                    let rapidFireAction = SKAction.sequence([
-                        .run
-                        {
-                            self.addPowerupDurationNodeForPlayer(player: player)
-                            player.currentMaxCooldown = self.rapidFireCooldownTime
-                            player.powerUpDuration = self.rapidFirePowerupDuration
-                            player.originalPowerupDuration = self.rapidFirePowerupDuration
-                        },
-                        .wait(forDuration: rapidFirePowerupDuration),
-                        .run
-                        {
-                            player.fireMode = Powerups.SingleFire
-                            player.currentMaxCooldown = self.singleFireCooldownTime
-                            player.powerUpDuration = 0.0
-                            player.originalPowerupDuration = 0.0
-                        }
-                    ])
-                    print("activePowerupActionKey_\(player.playerColor!)")
-                    self.run(rapidFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
-                    
-                    
-                case multiFireNodeName:
-                    player.fireMode = Powerups.MultiFire
-                    let multiFireAction = SKAction.sequence([
-                        .run
-                        {
-                            self.addPowerupDurationNodeForPlayer(player: player)
-                            player.currentMaxCooldown = self.multiFireCooldownTime
-                            player.powerUpDuration = self.multiFirePowerupDuration
-                            player.originalPowerupDuration = self.multiFirePowerupDuration
-                        },
-                        .wait(forDuration: multiFirePowerupDuration),
-                        .run
-                        {
-                            player.fireMode = Powerups.SingleFire
-                            player.currentMaxCooldown = self.singleFireCooldownTime
-                            player.powerUpDuration = 0.0
-                            player.originalPowerupDuration = 0.0
-                        }
-                    ])
-                    self.run(multiFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
-                
-                case randomBombNodeName:
-                    if !bombInProgress{
-                        spawnBombNode(player: player)
-                        bombInProgress = true
-                    }
-                
-                case jSONFireNodeName:
-                    player.fireMode = Powerups.jSONFire
-                    let jSONFireAction = SKAction.sequence([
-                        .run
-                        {
-                            self.addPowerupDurationNodeForPlayer(player: player)
-                            player.currentMaxCooldown = self.jSONFireCooldownTime
-                            player.powerUpDuration = self.jSONFirePowerupDuration
-                            player.originalPowerupDuration = self.jSONFirePowerupDuration
-                            
-                        },
-                        .wait(forDuration: jSONFirePowerupDuration),
-                        .run
-                        {
-                            player.fireMode = Powerups.SingleFire
-                            player.currentMaxCooldown = self.singleFireCooldownTime
-                            player.powerUpDuration = 0.0
-                            player.originalPowerupDuration = 0.0
-                        }
-                    ])
-                    self.run(jSONFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
-                
-                default:
-                    player.fireMode = Powerups.SingleFire
-                    print("This will never happen... right?")
-                }
-                
-                powerup.removeFromParent()
-                self.activePowerup = nil
-                
+                handlePoweupPlayerContact(player: (playerBody as! playerNode), powerup: (powerup as! SKSpriteNode))
             }
         } else if(B == TankGamePhysicsCategory.Player && A == TankGamePhysicsCategory.Powerup) {
-            print ("Powerup Contact B is Player")
+            if let powerup = contact.bodyA.node, let playerBody = contact.bodyB.node {
+                handlePoweupPlayerContact(player: (playerBody as! playerNode), powerup: (powerup as! SKSpriteNode))
+            }
         }
         
         
