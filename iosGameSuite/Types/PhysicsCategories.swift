@@ -12,6 +12,7 @@ struct TankGamePhysicsCategory {
     static let Boundary: UInt32 = 0b11
     static let Missile: UInt32 = 0b100
     static let Powerup: UInt32 = 0b101
+    static let Bomb: UInt32 = 0b111
 }
 
 struct DrunkFightPhysicsCategory {

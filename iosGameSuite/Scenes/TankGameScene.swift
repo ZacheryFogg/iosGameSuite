@@ -127,7 +127,7 @@ class TankGameScene: SKScene {
     var possiblePowerups: [SKSpriteNode] = []
     var possiblePowerupPositions: [CGPoint]!
     
-    let powerupDefaultDespawnTime: CGFloat = 8.0
+    let powerupDefaultDespawnTime: CGFloat = 4.0
     
     var missiles: [missileNode] = []
     let missileStandardMaxCollisions: Int = 4
@@ -184,10 +184,19 @@ class TankGameScene: SKScene {
     
     let rapidFirePowerupDuration = 5.0
     let multiFirePowerupDuration = 6.0
-    let jSONFirePowerupDuration = 10.0
+    let jSONFirePowerupDuration = 2.0
     
     let originalCooldownNodeWidth: CGFloat = 70.0
     let originalPowerupNodeWidth: CGFloat = 70.0
+    
+    let bombExplosionRadius: CGFloat = 70.0
+    
+    let jSONMissileDuration: CGFloat = 100000.0
+    let jSONMaxCollisions: Int = 100
+    let jSONVelocityMultiplier: CGFloat = 100.0
+    let jSONRadius: CGFloat = SKSpriteNode(imageNamed: "JSON_Missile1").frame.width/2.0
+    
+    var bombInProgress = false
 
     //MARK: - Systems
     override func didMove(to view: SKView) {
@@ -348,7 +357,9 @@ extension TankGameScene {
                             ,withVelocity: CGVector(dx: cos(rad - radOffset) * 200, dy:sin(rad - radOffset)*200))
         
         case Powerups.jSONFire:
-            print("jSON Fire")
+            let rad = player.zRotation + Double.pi/2
+            createJSON(positionAt: CGPoint(x:  player.position.x + ((jSONRadius + player.frame.height/2.0) * cos(rad)), y: player.position.y + ((jSONRadius + player.frame.height/2.0) * sin(rad)))
+                            ,withVelocity: CGVector(dx: cos(rad) * jSONVelocityMultiplier, dy:sin(rad)*jSONVelocityMultiplier))
             
         // Single Fire and Rapid Fire don't require any modification
         default:
@@ -469,6 +480,19 @@ extension TankGameScene {
         createWall(position: CGPoint(x: (self.size.width/4.0) * 3, y: self.size.height/2.0), size: CGSize(width: 10.0, height: 70))
         createWall(position: CGPoint(x: (self.size.width/4.0) * 3 - 20, y: (self.size.height/2.0) - 40), size: CGSize(width: 50.0, height: 10))
         
+        createWall(position: CGPoint(x: frame.midX + 30.0, y: bottomControlPanelHeight + boundaryWidth + 30.0),
+                   size: CGSize(width: 10.0, height: 60.0))
+        
+        createWall(position: CGPoint(x: frame.midX - 30.0, y: frame.height - boundaryWidth - 30.0),
+                   size: CGSize(width: 10.0, height: 60.0))
+        
+        createWall(position: CGPoint(x: frame.width - 30.0 - boundaryWidth, y: frame.midY + 30.0),
+                   size: CGSize(width: 60.0, height: 10.0))
+        
+        createWall(position: CGPoint(x: 0 + 30.0 + boundaryWidth, y: frame.midY - 30.0),
+                   size: CGSize(width: 60.0, height: 10.0))
+        
+        
         
         
     }
@@ -486,8 +510,7 @@ extension TankGameScene {
     // Create player nodes and add physics bodies to them
     func createPlayers(){
         
-        let startPositionOffsetX = 20.0 +  boundaryWidth
-        let startPositionOffsetY = 45.0 + boundaryWidth
+      
         let playerScaleFactor = 0.5
         
         // Red Player
@@ -497,10 +520,10 @@ extension TankGameScene {
         playerRed.name = "PlayerRed"
         playerRed.zPosition = 5.0
         playerRed.setScale(playerScaleFactor)
-        playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffsetX, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffsetY)
+        playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - 20.0, y: self.frame.height/2.0 - (playerRed.frame.height/2.0))
         
         // Set to face downwards originally
-        playerRed.zRotation = 3.14
+        playerRed.zRotation = 3.14/2.0
         
         // Add physics body
         let redScaledSize = CGSize(width: playerRed.texture!.size().width * playerScaleFactor, height: playerRed.texture!.size().height * playerScaleFactor)
@@ -517,10 +540,9 @@ extension TankGameScene {
         playerBlue = playerNode(imageNamed: "blueTank", lives: playerStartLives, velocity: startPlayerVelocityMultiplier, defaultCooldown: singleFireCooldownTime, playerColor: "blue")
         playerBlue.name = "PlayerBlue"
         playerBlue.zPosition = 5.0
-        playerBlue.zRotation = 0.0
+        playerBlue.zRotation = -(3.14/2.0)
         playerBlue.setScale(playerScaleFactor)
-        playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffsetX, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffsetY)
-        
+        playerBlue.position = CGPoint(x: 0.0 + (playerBlue.frame.width/2.0) + 20.0, y: self.frame.height/2.0 + (playerRed.frame.height))
         // Add physics body
         let blueScaledSize = CGSize(width: playerBlue.texture!.size().width * playerScaleFactor, height: playerBlue.texture!.size().height * playerScaleFactor)
         playerBlue.physicsBody = SKPhysicsBody(texture: playerBlue.texture!, size: blueScaledSize)
@@ -617,7 +639,7 @@ extension TankGameScene {
         let height = 15.0
         // Specify possible powerups positions
         possiblePowerupPositions = [CGPoint(x: frame.midX, y: frame.midY),
-                                    CGPoint(x: frame.midX, y: frame.midY + 100),
+                                    CGPoint(x: frame.midX, y: frame.midY + 100 + bottomControlPanelHeight/2.0),
                                     CGPoint(x: frame.midX, y: frame.midY - 100),
                                     CGPoint(x: frame.midX - 100.0, y: frame.midY),
                                     CGPoint(x: frame.midX + 100.0, y: frame.midY)]
@@ -629,32 +651,39 @@ extension TankGameScene {
         rapidFireNode.zPosition = 5.0
         rapidFireNode.physicsBody = SKPhysicsBody(circleOfRadius: rapidFireNode.frame.width/2.0).ideal().manualMovement()
         rapidFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-                
+
         // Multi Fire Powerup Node
         let multiFireNode = SKSpriteNode(color: .red, size: CGSize(width: width, height: height))
         multiFireNode.name = multiFireNodeName
         multiFireNode.zPosition = 5.0
         multiFireNode.physicsBody = SKPhysicsBody(circleOfRadius: multiFireNode.frame.width/2.0).ideal().manualMovement()
         multiFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        
+
         // JSON Fire Node
-        let jSONFireNode = SKSpriteNode(color: .green, size: CGSize(width: width, height: height))
+        let jSONFireNode = SKSpriteNode(imageNamed: "JSON1")
         jSONFireNode.name = jSONFireNodeName
+        jSONFireNode.setScale(0.2)
         jSONFireNode.zPosition = 5.0
         jSONFireNode.physicsBody = SKPhysicsBody(circleOfRadius: jSONFireNode.frame.width/2.0).ideal().manualMovement()
         jSONFireNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
-        
+//
         // Random Bomb Spawn
-        let randomBombNode = SKSpriteNode(color: .black, size: CGSize(width: width, height: height))
+        let randomBombNodeScaleFactor = 2.0
+        let randomBombNode = SKSpriteNode(imageNamed: "bomb0")
         randomBombNode.name = randomBombNodeName
         randomBombNode.zPosition = 5.0
-        randomBombNode.physicsBody = SKPhysicsBody(circleOfRadius: randomBombNode.frame.width/2.0).ideal().manualMovement()
+        randomBombNode.setScale(randomBombNodeScaleFactor)
+//        randomBombNode.physicsBody = SKPhysicsBody(circleOfRadius: randomBombNode.frame.width/4.0).ideal().manualMovement()
+        let randomBombNodeScaledSize = CGSize(width: randomBombNode.texture!.size().width * randomBombNodeScaleFactor,
+                                          height: randomBombNode.texture!.size().height * randomBombNodeScaleFactor)
+        randomBombNode.physicsBody = SKPhysicsBody(texture: randomBombNode.texture!, size: randomBombNodeScaledSize).ideal().manualMovement()
+
         randomBombNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Powerup
         
-        possiblePowerups.append(rapidFireNode)
-        possiblePowerups.append(multiFireNode)
+//        possiblePowerups.append(rapidFireNode)
+//        possiblePowerups.append(multiFireNode)
 //        possiblePowerups.append(jSONFireNode)
-//        possiblePowerups.append(randomBombNode)
+        possiblePowerups.append(randomBombNode)
         
         let powerupRepeaterAction = SKAction.repeatForever(.sequence([
             .wait(forDuration: powerupDefaultDespawnTime),
@@ -690,9 +719,31 @@ extension TankGameScene {
     // Player should check for collision with any bullet
     
     // May need to store bullets in a vector just like walls...
+    func createJSON(positionAt position: CGPoint, withVelocity velocity: CGVector){
+        //TODO: Comeback and handle velocity
+        let json = missileNode(imageNamed: "JSON_Missile1", maxCollisions: self.jSONMaxCollisions, velocity: 0.0)
+
+        json.position = position
+        json.setScale(0.5)
+        json.name = "JSON"
+        json.physicsBody = SKPhysicsBody(circleOfRadius: json.frame.width/2.0).ideal()
+        json.physicsBody!.velocity = velocity
+        json.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Missile
+        json.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player | TankGamePhysicsCategory.Boundary
+
+        
+        self.addChild(json)
+        self.missiles.append(json)
+                
+        var jsonTextures: [SKTexture] = []
+        for i in 1...3 {
+            jsonTextures.append(SKTexture(imageNamed: "JSON_Missile\(i)"))
+        }
+        json.run(.repeatForever(.animate(with: jsonTextures, timePerFrame: 0.08)))
+    }
+    
     func createMissile(positionAt position: CGPoint, withVelocity velocity: CGVector){
         
-        //TODO: Comeback and handle velocity
         let missile = missileNode(imageNamed: "missile1", maxCollisions: self.missileStandardMaxCollisions, velocity: 0.0)
 //        let missile = missileNode(imageNamed: "JSON1", maxCollisions: self.missileStandardMaxCollisions, velocity: 0.0)
 
@@ -773,7 +824,7 @@ extension TankGameScene {
     
     func createPauseButton(){
         pauseButtonNode = SKSpriteNode(imageNamed: "pause")
-        pauseButtonNode.setScale(0.2)
+        pauseButtonNode.setScale(0.08)
         pauseButtonNode.zPosition = 50.0
         pauseButtonNode.name = pauseButtonNodeName
         pauseButtonNode.position = CGPoint(x: 0.0 + pauseButtonNode.frame.width/2 + 10.0, y: self.frame.maxY - pauseButtonNode.frame.height/2 - 10.0)
@@ -781,7 +832,7 @@ extension TankGameScene {
     }
     
     func createPausePanel(){
-        let menuScale = 0.2
+        let menuScale = 0.08
         
         pauseContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0 + bottomControlPanelHeight/2.0)
         self.addChild(pauseContainerNode)
@@ -791,7 +842,7 @@ extension TankGameScene {
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         
-        let pauseGamePanelTitle = SKLabelNode(fontNamed: "AmericanTypewriter")
+        let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
         pauseGamePanelTitle.text = "Game Paused" // this logic is filler, need two player scores
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 30
@@ -919,11 +970,12 @@ extension TankGameScene {
             playerRed.removeFromParent()
             playerBlue.removeFromParent()
             
-            playerRed.zRotation = 3.14
-            playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - startPositionOffsetX, y: self.frame.height - (playerRed.frame.height/2.0) - startPositionOffsetY)
+            playerRed.zRotation = 3.14/2.0
+            playerRed.position = CGPoint(x: frame.width - (playerRed.frame.width/2.0) - 20.0, y: self.frame.height/2.0 - (playerRed.frame.height/2.0))
+
             
-            playerBlue.zRotation = 0.0
-            playerBlue.position = CGPoint(x: playerBlue.frame.width/2.0 + startPositionOffsetX, y: self.bottomControlPanelHeight +  playerBlue.frame.height/2.0 + startPositionOffsetY)
+            playerBlue.zRotation = (-3.14/2.0)
+            playerBlue.position = CGPoint(x: 0.0 + (playerBlue.frame.width/2.0) + 20.0, y: self.frame.height/2.0 + (playerRed.frame.height))
             self.imminentReset = false
             
             addChild(playerRed)
@@ -946,6 +998,108 @@ extension TankGameScene {
             addChild(bluePowerupDurationNode)
         }
     }
+    
+    func explodeBombNode(bombNode: SKSpriteNode){
+        bombNode.removeAllActions()
+
+        if bombNode.inParentHierarchy(self){
+            createExplosion(position: bombNode.position, scale: 3.5, timePerFrame: 0.1)
+            bombNode.removeFromParent()
+            
+            var playerHit = false
+            if playerRed.inParentHierarchy(self){
+                
+                if sqrt(pow(playerRed.position.x - bombNode.position.x, 2) + pow(playerRed.position.y - bombNode.position.y, 2)) < bombExplosionRadius {
+                    playerHit = true
+                    imminentReset = true
+                    playerRed.removeFromParent()
+                    playerRed.decrementLives()
+                }
+            }
+            if playerBlue.inParentHierarchy(self){
+                if sqrt(pow(playerBlue.position.x - bombNode.position.x, 2) + pow(playerBlue.position.y - bombNode.position.y, 2)) < bombExplosionRadius {
+                    playerHit = true
+                    imminentReset = true
+                    playerBlue.removeFromParent()
+                    playerBlue.decrementLives()
+                }
+            }
+            if playerHit{
+                self.run(.sequence([
+                    .wait(forDuration: 1.0),
+                    .run{[weak self] in
+                        self?.checkEndgameConditions()
+                        self?.resetOnHit()
+                        
+                }]))
+            }
+            bombInProgress = false
+        }
+    }
+    
+    func spawnBombNode(player: playerNode){
+        let minOffset  = 10.0
+        let maxOffset = 20.0
+        let minWallOffset = 5.0
+        
+        var xPos = player.playerColor == "red" ? playerBlue.position.x : playerRed.position.x
+        var yPos = player.playerColor == "red" ? playerBlue.position.y : playerRed.position.y
+        
+        let xo = CGFloat(Double.random(in: minOffset...maxOffset))
+        let yo = CGFloat(Double.random(in: minOffset...maxOffset))
+        
+        let xDirection = Double.random(in: -1...1) <= 0 ? -1 : 1
+        let yDirection = Double.random(in: -1...1) <= 0 ? -1 : 1
+        
+        if xPos + (xo * xDirection) >= (frame.width - boundaryWidth - minOffset){
+            xPos = frame.width - boundaryWidth - (minOffset * 2.0)
+        } else if xPos + (xo * xDirection) <= (0.0 + boundaryWidth + minOffset){
+            xPos = 0.0 + boundaryWidth + (minOffset * 2.0)
+        } else {
+            xPose = xPos + (xo * xDirection)
+        }
+        
+        if yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minOffset){
+            yPos = frame.height - boundaryWidth - (minOffset * 2.0)
+        } else if yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset){
+            yPos = 0.0 + boundaryWidth + (minOffset * 2.0)
+        } else {
+            yPos = yPos + (yo * yDirection)
+        }
+                   
+        let bombDuration = 1.0
+        let bombScale = 2.0
+        let numAnimationImages: Int = 6
+        let bombNode = SKSpriteNode(imageNamed: "bomb0")
+        bombNode.name = "bombNode"
+        bombNode.setScale(bombScale)
+        bombNode.zPosition = 5.0
+        
+        let bombScaledSize = CGSize(width: bombNode.texture!.size().width * bombScale, height: bombNode.texture!.size().height * bombScale)
+        bombNode.physicsBody = SKPhysicsBody(texture: bombNode.texture!, size: bombScaledSize)
+        
+        bombNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Bomb
+        bombNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
+        
+        // Get Random Position for Bomb
+        bombNode.position = CGPoint(x: xPos, y: yPos)
+        
+        addChild(bombNode)
+        
+        var bombTextures: [SKTexture] = []
+        
+        for i in 1...numAnimationImages {
+            bombTextures.append(SKTexture(imageNamed: "bomb\(i)"))
+        }
+        bombNode.run(.repeatForever(.animate(with: bombTextures, timePerFrame: CGFloat(bombDuration / CGFloat(numAnimationImages)))))
+        
+        bombNode.run(.scale(by: 1.2, duration: bombDuration))
+        
+        bombNode.run(.sequence([
+            .wait(forDuration: bombDuration),
+            .run{self.explodeBombNode(bombNode: bombNode)}
+        ]))
+    }
 }
     
 //MARK: - SKPhysicsContactDelegate
@@ -956,19 +1110,58 @@ extension TankGameScene: SKPhysicsContactDelegate {
         let A = contact.bodyA.categoryBitMask
         let B = contact.bodyB.categoryBitMask
 
+            
+        // If BombNode
+        if (A == TankGamePhysicsCategory.Player || A == TankGamePhysicsCategory.Missile) && ( B == TankGamePhysicsCategory.Bomb){
+
+            if let bombNode = contact.bodyB.node, let otherNode = contact.bodyB.node{
+                if otherNode is missileNode {
+                    otherNode.removeFromParent()
+                }
+                explodeBombNode(bombNode: (bombNode as! SKSpriteNode))
+                
+            }
+        }
+            
+        else if (B == TankGamePhysicsCategory.Player || B == TankGamePhysicsCategory.Missile) && ( A == TankGamePhysicsCategory.Bomb){
+            if let bombNode = contact.bodyA.node, let otherNode = contact.bodyB.node{
+                if otherNode is missileNode{
+                    otherNode.removeFromParent()
+                }
+                explodeBombNode(bombNode: (bombNode as! SKSpriteNode))
+            }
+        }
+        
+        
+        
         // If A is missile and B is missile then both blowup
-        if (A == TankGamePhysicsCategory.Missile && B == TankGamePhysicsCategory.Missile) {
+        else if (A == TankGamePhysicsCategory.Missile && B == TankGamePhysicsCategory.Missile) {
             if let missileA = contact.bodyA.node, let missileB = contact.bodyB.node {
-                self.createExplosion(position: missileA.position, scale: CGFloat(1.0), timePerFrame: 0.08)
-                missileA.removeFromParent()
-                missileB.removeFromParent()
+                if (missileA.name == "JSON" && missileB.name == "JSON"){
+                    missileA.removeFromParent()
+                    missileB.removeFromParent()
+                    self.createExplosion(position: missileA.position, scale: CGFloat(8.0), timePerFrame: 0.08)
+                } else if (missileA.name == "JSON") {
+                    self.createExplosion(position: missileB.position, scale: CGFloat(1.0), timePerFrame: 0.08)
+                    missileB.removeFromParent()
+                    
+                } else if (missileB.name == "JSON") {
+                    self.createExplosion(position: missileA.position, scale: CGFloat(1.0), timePerFrame: 0.08)
+                    missileA.removeFromParent()
+                } else {
+                    self.createExplosion(position: missileA.position, scale: CGFloat(1.0), timePerFrame: 0.08)
+                    missileA.removeFromParent()
+                    missileB.removeFromParent()
+                }
                 
             }
         }
     
         else if (B == TankGamePhysicsCategory.Missile && A == TankGamePhysicsCategory.Player && !imminentReset) {
             if let player = contact.bodyA.node, let missile = contact.bodyB.node {
-                self.createExplosion(position: missile.position, scale: CGFloat(2.5), timePerFrame: 0.13)
+                var explosionScale = 2.5
+                if (missile.name == "JSON"){explosionScale = 3.0}
+                self.createExplosion(position: missile.position, scale: CGFloat(explosionScale), timePerFrame: 0.13)
                 missile.removeFromParent()
                 player.removeFromParent()
                 
@@ -1046,7 +1239,10 @@ extension TankGameScene: SKPhysicsContactDelegate {
                     self.run(multiFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
                 
                 case randomBombNodeName:
-                    print("bomb")
+                    if !bombInProgress{
+                        spawnBombNode(player: player)
+                        bombInProgress = true
+                    }
                 
                 case jSONFireNodeName:
                     player.fireMode = Powerups.jSONFire
@@ -1059,7 +1255,7 @@ extension TankGameScene: SKPhysicsContactDelegate {
                             player.originalPowerupDuration = self.jSONFirePowerupDuration
                             
                         },
-                        .wait(forDuration: multiFirePowerupDuration),
+                        .wait(forDuration: jSONFirePowerupDuration),
                         .run
                         {
                             player.fireMode = Powerups.SingleFire
@@ -1085,10 +1281,9 @@ extension TankGameScene: SKPhysicsContactDelegate {
         
         
         else if(B == TankGamePhysicsCategory.Missile && A == TankGamePhysicsCategory.Powerup) {
-            print("why whyfbweuf")
             if let powerup = contact.bodyA.node, let missile = contact.bodyB.node {
                 self.createExplosion(position: missile.position, scale: CGFloat(1.0), timePerFrame: 0.08)
-                missile.removeFromParent()
+                if(missile.name != "JSON"){missile.removeFromParent()}
                 powerup.removeFromParent()
                 activePowerup = nil
                 
@@ -1097,10 +1292,9 @@ extension TankGameScene: SKPhysicsContactDelegate {
             
             
         } else if(B == TankGamePhysicsCategory.Powerup && A == TankGamePhysicsCategory.Missile) {
-            print("will this ever get contacted")
             if let missile = contact.bodyA.node, let powerup = contact.bodyB.node {
                 self.createExplosion(position: missile.position, scale: CGFloat(1.0), timePerFrame: 0.08)
-                missile.removeFromParent()
+                if(missile.name != "JSON"){missile.removeFromParent()}
                 powerup.removeFromParent()
                 activePowerup = nil
                 
