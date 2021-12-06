@@ -12,7 +12,7 @@ class ButtonNode: SKSpriteNode {} // creating a class for ButtonNode will allow 
 class MenuScene: SKScene {
     
     //MARK: - Properties
-    let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
+//    let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
     let DemoGame = ButtonNode(imageNamed: "JSON1")
     let ClayGame = ButtonNode(imageNamed: "cowboy")
@@ -24,18 +24,38 @@ class MenuScene: SKScene {
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
         
         // Configure Title
-        gameTitleLabel.text = "Title of Game"
-        gameTitleLabel.fontSize = 35
-        gameTitleLabel.fontColor = SKColor.cyan
-        gameTitleLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 50)
-        self.addChild(gameTitleLabel)
+//        gameTitleLabel.text = "Free Adicting iOS Andriod Game! Super Fun! For Boys! For Girls! Free! Download Today For Free"
+//        gameTitleLabel.fontSize = 35
+//        gameTitleLabel.numberOfLines = 2
+//        gameTitleLabel.preferredMaxLayoutWidth = self.frame.width * 0.9
+//        gameTitleLabel.fontColor = SKColor.cyan
+//        gameTitleLabel.position = CGPoint(x: frame.midX, y: frame.maxY - gameTitleLabel.frame.height)
+        let background = SKSpriteNode(imageNamed: "startMenuBackground")
+        background.name = "background"
+        // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
+        background.anchorPoint = .zero
+        background.position = CGPoint(x: 0.0, y: 0.0)
+        background.zPosition = 1.0 // Make sure is appears behind other children
+        self.addChild(background)
+        
+        let background2 = SKSpriteNode(imageNamed: "startMenuForeground")
+        
+        
+        background2.name = "background2"
+        // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
+        background2.anchorPoint = .zero
+        background2.position = CGPoint(x: 0.0, y: 0.0)
+        background2.zPosition = 1.0 // Make sure is appears behind other children
+        self.addChild(background2)
+        
+        
+//        self.addChild(gameTitleLabel)
         
         // Create 2 rows of 3 columns of button nodes
         
 //        let button = ButtonNode(imageNamed: "DefaultGameIcon") // create throwaway button to calculate height and width
 //        let buttonW = button.frame.width
 //        let buttonH = button.frame.height
-        
         DemoGame.name = "DemoGame"
         ClayGame.name = "ClayGame"
         TankGame.name = "TankGame"
@@ -45,7 +65,12 @@ class MenuScene: SKScene {
         ClayGame.setScale(0.5)
         TankGame.setScale(0.5)
         SnakeGame.setScale(0.5)
-
+        
+        DemoGame.zPosition = 3.0
+        ClayGame.zPosition = 3.0
+        TankGame.zPosition = 3.0
+        SnakeGame.zPosition = 3.0
+        
         
         let frameW = frame.width
         let frameH = frame.height
@@ -57,7 +82,7 @@ class MenuScene: SKScene {
         var i = 0
         for x in xs{
             let node = ButtonNodes[i]
-            node.position = CGPoint(x: x, y: Int(frameH/2.0))
+            node.position = CGPoint(x: x, y: Int(frameH/3.0) + 12)
             self.addChild(node)
             i+=1
             
@@ -92,50 +117,10 @@ class MenuScene: SKScene {
         default:
             return
         }
-//        gameScene.scaleMode = self.scaleMode
         self.view?.presentScene(gameScene, transition: .doorsOpenVertical(withDuration: 0.5))
         
         
     }
-    
-    func setupSettingsContainer(){
-        settingsContainerNode = SKSpriteNode()
-        settingsContainerNode.name = "container"
-        settingsContainerNode.zPosition = 15.0
-        settingsContainerNode.color = UIColor(white: 0.5, alpha: 0.5)
-        settingsContainerNode.size = self.size
-        settingsContainerNode.position = CGPoint(x: size.width/2.0, y: size.height/2.0)
-        addChild(settingsContainerNode)
-        
-    }
-    
-    func setupSetting() {
-        setupSettingsContainer()
-        
-        let settingsPanel = SKSpriteNode(imageNamed: "panel")
-        settingsPanel.setScale(1.5)
-        settingsPanel.zPosition = 20.0
-        settingsPanel.position = .zero
-        settingsContainerNode.addChild(settingsPanel)
-        
-        let musicButton = SKSpriteNode(imageNamed: SKTAudio.musicEnabled ? "musicOn" : "musicOff")
-        musicButton.name = "music"
-        musicButton.setScale(0.7)
-        musicButton.zPosition = 25.0
-        musicButton.position = CGPoint(x: -musicButton.frame.width - 50.0, y: 0.0)
-        settingsContainerNode.addChild(musicButton)
-        
-        let effectButton = SKSpriteNode(imageNamed: effectEnabled ? "effectOn" : "effectOff")
-        effectButton.name = "effect"
-        effectButton.setScale(0.7)
-        effectButton.zPosition = 25.0
-        effectButton.position = CGPoint(x: musicButton.frame.width + 50.0, y: 0.0)
-        settingsPanel.addChild(effectButton)
-    }
 }
 
-//MARK: - Configuration
 
-//extension GameScene {
-//
-//}

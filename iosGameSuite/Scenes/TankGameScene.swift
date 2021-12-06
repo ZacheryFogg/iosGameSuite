@@ -115,6 +115,8 @@ class TankGameScene: SKScene {
     var redScoreNode: SKLabelNode!
     var blueScoreNode: SKLabelNode!
     
+//    var redCooldownNode : SKShapeNode!
+//    var blueCooldownNode: SKShapeNode!
     var redCooldownNode : SKSpriteNode!
     var blueCooldownNode: SKSpriteNode!
     
@@ -123,6 +125,8 @@ class TankGameScene: SKScene {
     
 //    var powerupShadowNode: SKSpriteNode!
     var powerupShadowNode: SKShapeNode!
+    
+    let powerupCooldownNodeColor = UIColor.purple
     
     var redLaunchButton: SKSpriteNode!
     var blueLaunchButton: SKSpriteNode!
@@ -685,10 +689,11 @@ extension TankGameScene {
     
     // This will be an effective wall for the players/bullets... it will have a physics body
     func createBottomControlPanel(){
+        let offWhite = CGFloat(255.0/255.0)
         bottomControlPanel = SKSpriteNode(color: .white, size: CGSize(width: self.frame.width, height: bottomControlPanelHeight))
         bottomControlPanel.name = "BottomControlPanel"
         bottomControlPanel.anchorPoint = .zero
-        bottomControlPanel.color = .white
+        bottomControlPanel.color = UIColor(red: offWhite, green: offWhite, blue: offWhite, alpha: 1.0)
         bottomControlPanel.zPosition = 2.0
         // Set position of each ground to be i x width, so that they are horizontally stacked
         bottomControlPanel.position = CGPoint(x: 0.0, y:0.0)
@@ -724,29 +729,49 @@ extension TankGameScene {
         
         addChild(blueLaunchButton)
         
-        redCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        redCooldownNode = SKSpriteNode(color: darkRedColor, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         redCooldownNode.name = redCooldownNodeName
         redCooldownNode.zPosition = 81.0
         redCooldownNode.position = CGPoint(x: redLaunchButton.position.x,
                                            y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
-        
+
         addChild(redCooldownNode)
-        
-        blueCooldownNode = SKSpriteNode(color: .green, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+
+        blueCooldownNode = SKSpriteNode(color: darkBlueColor, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         blueCooldownNode.name = blueCooldownNodeName
         blueCooldownNode.zPosition = 81.0
         blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x,
                                             y: blueLaunchButton.position.y - blueLaunchButton.frame.height/2.0 - blueCooldownNode.frame.height/2.0 - verticalOffset)
-        
+
         addChild(blueCooldownNode)
+
+//        redCooldownNode = SKShapeNode(rect: CGRect(x: 0.0, y: 0.0, width: originalCooldownNodeWidth, height: 10.0), cornerRadius: 5.0)
+//        redCooldownNode.fillColor = darkRedColor
+//        redCooldownNode.strokeColor = .black
+//        redCooldownNode.name = redCooldownNodeName
+//        redCooldownNode.zPosition = 81.0
+//        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x,
+//                                           y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
+//
+//        addChild(redCooldownNode)
+//
+//        blueCooldownNode = SKShapeNode(rect: CGRect(x: 0.0, y: 0.0, width: originalCooldownNodeWidth, height: 10.0), cornerRadius: 5.0)
+//        blueCooldownNode.fillColor = darkBlueColor
+//        blueCooldownNode.strokeColor = .black
+//        blueCooldownNode.name = blueCooldownNodeName
+//        blueCooldownNode.zPosition = 81.0
+//        blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x,
+//                                           y: blueLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
+//
+//        addChild(blueCooldownNode)
         
-        redPowerupDurationNode = SKSpriteNode(color: .red, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        redPowerupDurationNode = SKSpriteNode(color: powerupCooldownNodeColor, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         redPowerupDurationNode.name = redPowerupDurationNodeName
         redPowerupDurationNode.zPosition = 81.0
         redPowerupDurationNode.position = CGPoint(x: redCooldownNode.position.x,
                                                   y:redCooldownNode.position.y - redCooldownNode.frame.height/2.0 - redPowerupDurationNode.frame.height/2.0 - verticalOffset)
         
-        bluePowerupDurationNode = SKSpriteNode(color: .red, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
+        bluePowerupDurationNode = SKSpriteNode(color: powerupCooldownNodeColor, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         bluePowerupDurationNode.name = bluePowerupDurationNodeName
         bluePowerupDurationNode.zPosition = 81.0
         bluePowerupDurationNode.position = CGPoint(x: blueCooldownNode.position.x,
@@ -823,6 +848,7 @@ extension TankGameScene {
         let timeBetweenMovement = 0.2
         if let powerup = activePowerup{
             powerup.removeFromParent()
+            powerup.removeAllActions()
             powerupShadowNode.removeFromParent()
             activePowerup = nil
         }
@@ -848,13 +874,6 @@ extension TankGameScene {
             
             self.addChild(powerup)
                     
-//            powerupShadowNode = SKSpriteNode(color: .lightGray, size: powerup.size)
-//            powerupShadowNode.
-//            powerupShadowNode.blendMode = SKBlendMode.alpha
-//            powerupShadowNode.colorBlendFactor = 1
-//            powerupShadowNode.color = SKColor.black
-//            powerupShadowNode.zPosition = 1.0
-//            powerupShadowNode.alpha = 0.25
             powerupShadowNode = SKShapeNode(circleOfRadius: powerup.frame.width/2.0)
             powerupShadowNode.fillColor = .black
             powerupShadowNode.strokeColor = .black
@@ -918,52 +937,35 @@ extension TankGameScene {
         for i in 1...9 {
             missileTextures.append(SKTexture(imageNamed: "missile\(i)"))
         }
-//        for i in 1...3 {
-//            missileTextures.append(SKTexture(imageNamed: "JSON_Missile\(i)"))
-//        }
+
         missile.run(.repeatForever(.animate(with: missileTextures, timePerFrame: 0.08)))
         
     }
     
-    //This will likely split into multiple functions
-//    func movePlayer(forPlayer player: String){
-//
-//        enumerateChildNodes(withName: player) { (node, _) in
-//            let playerToMove = node as! SKSpriteNode
-//
-//            let rad = playerToMove.zRotation + Double.pi/2
-//            let amountToMove = CGPoint(x: (self.gameSpeedPerSecond * CGFloat(self.dt)) * cos(rad), y: (self.gameSpeedPerSecond * CGFloat(self.dt) * sin(rad)))
-//
-//            playerToMove.position += amountToMove
-//        }
-//
-//    }
     
     func createScoreboard(){
         let middleOffset = 30.0
         redScoreNode = SKLabelNode(fontNamed: "AmericanTypewriter")
         redScoreNode.text = "\(playerStartLives)"
-        redScoreNode.fontSize = 20.0
+        redScoreNode.fontSize = 30.0
         redScoreNode.fontColor =  darkRedColor
-        redScoreNode.horizontalAlignmentMode = .center
         redScoreNode.zPosition = 5.0
-        redScoreNode.position = CGPoint(x: bottomControlPanel.frame.width/2.0 + redScoreNode.frame.width + middleOffset, y: bottomControlPanel.frame.height/2.0)
+        redScoreNode.position = CGPoint(x: bottomControlPanel.frame.width/2.0 + redScoreNode.frame.width + middleOffset, y: bottomControlPanel.frame.height/2.0 - 10.0)
         
         self.addChild(redScoreNode)
         
         blueScoreNode = SKLabelNode(fontNamed: "AmericanTypewriter")
         blueScoreNode.text = "\(playerStartLives)"
-        blueScoreNode.fontSize = 20.0
+        blueScoreNode.fontSize = 30.0
         blueScoreNode.fontColor = darkBlueColor
-        blueScoreNode.horizontalAlignmentMode = .center
         blueScoreNode.zPosition = 5.0
-        blueScoreNode.position = CGPoint(x: bottomControlPanel.frame.width/2.0 - blueScoreNode.frame.width - middleOffset, y: bottomControlPanel.frame.height/2.0)
+        blueScoreNode.position = CGPoint(x: bottomControlPanel.frame.width/2.0 - blueScoreNode.frame.width - middleOffset, y: bottomControlPanel.frame.height/2.0 - 10.0)
         
         self.addChild(blueScoreNode)
         
         let dashNode = SKLabelNode(fontNamed: "AmericanTypewriter")
         dashNode.text = "-"
-        dashNode.fontSize = 20.0
+        dashNode.fontSize = 40.0
         dashNode.horizontalAlignmentMode = .center
         dashNode.verticalAlignmentMode = .top
         dashNode.zPosition = 5.0
@@ -972,10 +974,7 @@ extension TankGameScene {
         
         self.addChild(dashNode)
         
-        
     
-        
-        
     }
     
     func createPauseButton(){
