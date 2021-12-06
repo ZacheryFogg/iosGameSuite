@@ -1494,8 +1494,7 @@ extension TankGameScene: SKPhysicsContactDelegate {
                 activePowerup = nil
                 
             }
-            
-            
+        
             
         } else if(B == TankGamePhysicsCategory.Powerup && A == TankGamePhysicsCategory.Missile) {
             if let missile = contact.bodyA.node, let powerup = contact.bodyB.node {
