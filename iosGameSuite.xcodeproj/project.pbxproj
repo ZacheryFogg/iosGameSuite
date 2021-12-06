@@ -10,11 +10,8 @@
 		185F2CD0274ECF1300833668 /* SnakeGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185F2CCF274ECF1300833668 /* SnakeGameScene.swift */; };
 		18A2405727230D17009C40B2 /* PostGameMenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A2405627230D16009C40B2 /* PostGameMenuScene.swift */; };
 		6F2DBBFE271F3F2800675139 /* StartMenuScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F2DBBFD271F3F2800675139 /* StartMenuScene.swift */; };
-		6F3114B32745BB320071A81B /* ScoreGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3114B22745BB320071A81B /* ScoreGenerator.swift */; };
 		6F3BC16527592D16006F1E5A /* JoyStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3BC16427592D16006F1E5A /* JoyStick.swift */; };
 		6F5E5B8E27447BDF007D5026 /* PhysicsCategories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5E5B8D27447BDF007D5026 /* PhysicsCategories.swift */; };
-		6F6D1BF227486F57004E17E3 /* SKTAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6D1BF127486F57004E17E3 /* SKTAudio.swift */; };
-		6F6D1BF427487A7D004E17E3 /* SKTAction+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F6D1BF327487A7D004E17E3 /* SKTAction+Ext.swift */; };
 		6F96CEEE275670E30002ED1C /* TankGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F96CEED275670E30002ED1C /* TankGameScene.swift */; };
 		6F96CEF0275694320002ED1C /* SKTPhysicsBody+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F96CEEF275694320002ED1C /* SKTPhysicsBody+Ext.swift */; };
 		6F96CEF22756F2910002ED1C /* CGVector+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F96CEF12756F2910002ED1C /* CGVector+Ext.swift */; };
@@ -56,11 +53,8 @@
 		185F2CCF274ECF1300833668 /* SnakeGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnakeGameScene.swift; sourceTree = "<group>"; };
 		18A2405627230D16009C40B2 /* PostGameMenuScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGameMenuScene.swift; sourceTree = "<group>"; };
 		6F2DBBFD271F3F2800675139 /* StartMenuScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartMenuScene.swift; sourceTree = "<group>"; };
-		6F3114B22745BB320071A81B /* ScoreGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreGenerator.swift; sourceTree = "<group>"; };
 		6F3BC16427592D16006F1E5A /* JoyStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyStick.swift; sourceTree = "<group>"; };
 		6F5E5B8D27447BDF007D5026 /* PhysicsCategories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategories.swift; sourceTree = "<group>"; };
-		6F6D1BF127486F57004E17E3 /* SKTAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKTAudio.swift; sourceTree = "<group>"; };
-		6F6D1BF327487A7D004E17E3 /* SKTAction+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKTAction+Ext.swift"; sourceTree = "<group>"; };
 		6F96CEED275670E30002ED1C /* TankGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TankGameScene.swift; sourceTree = "<group>"; };
 		6F96CEEF275694320002ED1C /* SKTPhysicsBody+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKTPhysicsBody+Ext.swift"; sourceTree = "<group>"; };
 		6F96CEF12756F2910002ED1C /* CGVector+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGVector+Ext.swift"; sourceTree = "<group>"; };
@@ -116,7 +110,6 @@
 			isa = PBXGroup;
 			children = (
 				6F5E5B8D27447BDF007D5026 /* PhysicsCategories.swift */,
-				6F3114B22745BB320071A81B /* ScoreGenerator.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -245,8 +238,6 @@
 			children = (
 				6FE1E90E2742CAE600C8AC12 /* CGPoint+Ext.swift */,
 				6FE1E9102742DF4C00C8AC12 /* CGFloat+Ext.swift */,
-				6F6D1BF127486F57004E17E3 /* SKTAudio.swift */,
-				6F6D1BF327487A7D004E17E3 /* SKTAction+Ext.swift */,
 				6F96CEEF275694320002ED1C /* SKTPhysicsBody+Ext.swift */,
 				6F96CEF12756F2910002ED1C /* CGVector+Ext.swift */,
 				6F3BC16427592D16006F1E5A /* JoyStick.swift */,
@@ -390,16 +381,13 @@
 				6FE1E9112742DF4C00C8AC12 /* CGFloat+Ext.swift in Sources */,
 				185F2CD0274ECF1300833668 /* SnakeGameScene.swift in Sources */,
 				6FE1E90C2742A15300C8AC12 /* DrunkFightGameScene.swift in Sources */,
-				6F6D1BF427487A7D004E17E3 /* SKTAction+Ext.swift in Sources */,
 				FC6033CC275ACD8C009BE445 /* AirhockeyGameScene.swift in Sources */,
 				18A2405727230D17009C40B2 /* PostGameMenuScene.swift in Sources */,
 				6F96CEF0275694320002ED1C /* SKTPhysicsBody+Ext.swift in Sources */,
 				6FA955D5271C9EDE00E7527E /* InfiniteJSONGameScene.swift in Sources */,
 				6F2DBBFE271F3F2800675139 /* StartMenuScene.swift in Sources */,
-				6F6D1BF227486F57004E17E3 /* SKTAudio.swift in Sources */,
 				6FE1E90F2742CAE600C8AC12 /* CGPoint+Ext.swift in Sources */,
 				6F3BC16527592D16006F1E5A /* JoyStick.swift in Sources */,
-				6F3114B32745BB320071A81B /* ScoreGenerator.swift in Sources */,
 				6F5E5B8E27447BDF007D5026 /* PhysicsCategories.swift in Sources */,
 				6FA955D7271C9EDE00E7527E /* GameViewController.swift in Sources */,
 				6FA955CF271C9EDE00E7527E /* AppDelegate.swift in Sources */,

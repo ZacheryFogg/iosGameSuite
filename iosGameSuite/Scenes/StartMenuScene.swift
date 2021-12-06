@@ -14,9 +14,9 @@ class MenuScene: SKScene {
     //MARK: - Properties
 //    let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
-    let DemoGame = ButtonNode(imageNamed: "JSON1")
+    let DemoGame = ButtonNode(imageNamed: "jSONGameIcon")
     let ClayGame = ButtonNode(imageNamed: "cowboy")
-    let TankGame = ButtonNode(imageNamed: "blueTank")
+    let TankGame = ButtonNode(imageNamed: "blueTankIcon")
     let SnakeGame = ButtonNode(imageNamed: "snakeGameIcon")
     
     var settingsContainerNode = SKSpriteNode()
@@ -61,7 +61,7 @@ class MenuScene: SKScene {
         TankGame.name = "TankGame"
         SnakeGame.name = "SnakeGame"
         
-        DemoGame.setScale(0.5)
+        DemoGame.setScale(0.4375)
         ClayGame.setScale(0.5)
         TankGame.setScale(0.5)
         SnakeGame.setScale(0.5)

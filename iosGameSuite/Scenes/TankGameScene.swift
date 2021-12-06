@@ -220,19 +220,18 @@ class TankGameScene: SKScene {
     var prevBluePos: CGPoint!
     
     //MARK: - Systems
+    /*
+     Entry point for game - start the game by spawning nodes
+     */
     override func didMove(to view: SKView) {
         self.startGame()
         
     }
     
-    // Handle Each Players Controls
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
 
-    
-    }
-    
-    // Handle When A Touch has ended (this could be for the tank to stop moving, turning, etc...
+    /*
+     Handle touch events from users
+     */
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
 
@@ -276,8 +275,9 @@ class TankGameScene: SKScene {
         }
     }
     
-    // Update Game State
-    
+    /*
+     Scale the cooldown node for each player to the appropriate size as time advances
+     */
     func handleCooldown(player: playerNode, cooldownNode: SKSpriteNode){
         
         if player.cooldownLeft > 0.0{
@@ -292,7 +292,9 @@ class TankGameScene: SKScene {
         }
         
     }
-    
+    /*
+     Scale the cooldown node for each player to the appropriate size as time advances
+     */
     func updateCooldownNode(cooldownNode: SKSpriteNode ,originalTime: CGFloat, timeLeft: CGFloat){
         let percentTimeLeft = timeLeft/originalTime
         
@@ -301,7 +303,9 @@ class TankGameScene: SKScene {
         cooldownNode.size = CGSize(width: newCooldownNodeWidth, height: cooldownNode.frame.height)
         
     }
-    
+    /*
+     Scale the power duration nodes the appropriate size as time advances
+     */
     func handlePowerupDuration(player: playerNode, powerupNode: SKSpriteNode){
         player.powerUpDuration -= CGFloat(dt)
         if player.powerUpDuration <= 0.0{
@@ -314,16 +318,19 @@ class TankGameScene: SKScene {
         }
     }
     
-
-    
-
+    /*
+     Update loop for game - called automatically by SpriteKit
+     */
     override func update(_ currentTime: TimeInterval) {
- 
+        // Update time tracking variables
         if lastUpdateTime > 0 {
             dt = currentTime - lastUpdateTime
         } else {
             dt = 0
         }
+        lastUpdateTime = currentTime
+        
+        // Animate players if they are moving
         if (playerRed.position.x == prevRedPos.x && playerRed.position.y == prevRedPos.y){
             playerRed.removeAction(forKey: "animation")
             playerRed.texture = SKTexture(imageNamed: "redTank1")
@@ -352,17 +359,17 @@ class TankGameScene: SKScene {
             prevBluePos = playerBlue.position
         }
         
-        lastUpdateTime = currentTime
         
+        // Handle even when game is over
         if isGameOver {
-            // Present out game over scene, with possibly
             if !isPaused{
                 createPostGamePanel()
                 isPaused = true
             }
-        
+        // If game is not over, perform other operations
         } else {
             
+            // Move powerups shadow to bounce with powerup
             if let activePowerup = activePowerup, let powerupShadowNode = powerupShadowNode {
                 powerupShadowNode.position = CGPoint(x: activePowerup.position.x + 3.0, y: activePowerup.position.y - 5.0)
             }
@@ -373,10 +380,11 @@ class TankGameScene: SKScene {
             if playerRed.powerUpDuration > 0.0 {handlePowerupDuration(player: playerRed, powerupNode: redPowerupDurationNode)}
             if playerBlue.powerUpDuration > 0.0 {handlePowerupDuration(player: playerBlue, powerupNode: bluePowerupDurationNode)}
             
+            // Update scoreboard
             redScoreNode.text = "\(playerRed.lives!)"
             blueScoreNode.text = "\(playerBlue.lives!)"
             
-        
+            // Keep missiles rotated to correct degree to match direction vector
             for (index, missile) in missiles.enumerated() {
                 
                 if (missile.remainingCollisions < 1){
@@ -400,7 +408,6 @@ extension TankGameScene {
     
     // Launch missile for given player
     func handleMissileLaunch(player: playerNode){
-        
         
         switch player.fireMode {
             
@@ -427,31 +434,35 @@ extension TankGameScene {
             
         }
         
-        
         player.cooldownLeft = player.currentMaxCooldown
     }
+    /*
+     Call various functions to create appropriate nodes and generally setup the game
+     */
     func startGame(){
-        // In event of restart we want to start with no children and re add
         self.removeAllChildren()
         setupPhysicsWorld()
-        
         createBottomControlPanel()
         createPauseButton()
         createPlayers()
         createBackground()
         createBoundaries()
         createWalls()
-        
         setupPowerups()
-
-
     }
     
+    /*
+     If either player has 0 lives, then the game is over
+     */
     func checkEndgameConditions(){
         if playerRed.lives! < 1 || playerBlue.lives! < 1{
             isGameOver = true
         }
     }
+    
+    /*
+     Setup joysticks for each player and setup handlers
+     */
     func setupJoysticks(){
         addChild(analogJoystickBlue)
         addChild(analogJoystickRed)
@@ -462,9 +473,7 @@ extension TankGameScene {
                                            y: self.playerRed.position.y + (data.velocity.y * playerRed.velocityMultiplier))
                 self.playerRed.zRotation = data.angular
                 }
-//            print("RT X: \(data.velocity.x)  Y: \(data.velocity.y)")
         }
-        
         analogJoystickBlue.trackingHandler = { [unowned self] data in
             if !self.imminentReset && (data.velocity.y != 0.0 && data.velocity.x != 0.0){
                 self.playerBlue.position = CGPoint(x: self.playerBlue.position.x + (data.velocity.x * playerBlue.velocityMultiplier),
@@ -476,12 +485,17 @@ extension TankGameScene {
     }
 
 
-    
+    /*
+     Setup phyics on scene to have no gravity
+     */
     func setupPhysicsWorld(){
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0) // No gravity in this world
         self.physicsWorld.contactDelegate = self
     }
     
+    /*
+     Create outside boundaries of the game
+     */
     func createBoundaries() {
         
         func createVeritcalBoundary(x: CGFloat){
@@ -490,12 +504,10 @@ extension TankGameScene {
             boundary.physicsBody = SKPhysicsBody(rectangleOf: boundarySize).ideal().manualMovement()
             boundary.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Boundary
 
-            
             boundary.position = CGPoint(x: x, y: self.size.height/2.0)
             boundary.strokeColor = boundaryColor
             boundary.fillColor = boundaryColor
             boundary.zPosition = 100.0
-
 
             self.addChild(boundary)
             
@@ -557,7 +569,10 @@ extension TankGameScene {
         createHorizontalBoundary(y: self.frame.height - boundaryWidth/2.0)
         
     }
-    //TODO: Add some random generation to walls
+    
+    /*
+     Generate interior walls for game
+     */
     func createWalls(){
         
         func createWall(position: CGPoint, size: CGSize){
@@ -591,7 +606,6 @@ extension TankGameScene {
 
             self.addChild(wall)
         }
-//        let wallPositions: [CGPoint] = [CGPoint()]
         createWall(position: CGPoint(x: self.size.width/4.0, y: (self.size.height/3.0) * 2), size: CGSize(width: 10.0, height: 70))
         createWall(position: CGPoint(x: self.size.width/4.0 + 20, y: (self.size.height/3.0) * 2 + 40), size: CGSize(width: 50.0, height: 10))
         
@@ -609,26 +623,26 @@ extension TankGameScene {
         
         createWall(position: CGPoint(x: 0 + 30.0 + boundaryWidth, y: frame.midY - 30.0),
                    size: CGSize(width: 80.0, height: 10.0))
-        
-        
-        
-        
+
     }
     
+    /*
+     Create the background node for the game
+     */
     func createBackground(){
-        let background = SKSpriteNode(imageNamed: "testBackground")
+        let background = SKSpriteNode(imageNamed: "tankGameBackground")
         background.name = "Background"
-        // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
         background.anchorPoint = .zero
         background.position = CGPoint(x: 0.0, y: 0.0)
         background.zPosition = -1.0 // Make sure is appears behind other children
         self.addChild(background)
     }
     
-    // Create player nodes and add physics bodies to them
+    /*
+     Create red and blue players
+     */
     func createPlayers(){
         
-      
         let playerScaleFactor = 0.5
         
         // Red Player
@@ -661,6 +675,7 @@ extension TankGameScene {
         playerBlue.zRotation = -(3.14/2.0)
         playerBlue.setScale(playerScaleFactor)
         playerBlue.position = CGPoint(x: 0.0 + (playerBlue.frame.width/2.0) + 20.0, y: self.frame.height/2.0 + (playerRed.frame.height))
+        
         // Add physics body
         let blueScaledSize = CGSize(width: playerBlue.texture!.size().width * playerScaleFactor, height: playerBlue.texture!.size().height * playerScaleFactor)
         playerBlue.physicsBody = SKPhysicsBody(texture: playerBlue.texture!, size: blueScaledSize)
@@ -671,7 +686,7 @@ extension TankGameScene {
         self.addChild(playerBlue)
         
         
-        // Animate Players
+        // Populate animation arrays
         for i in 1...12 {
             redTextures.append(SKTexture(imageNamed: "redTank\(i)"))
         }
@@ -679,23 +694,23 @@ extension TankGameScene {
         for i in 1...12 {
             blueTextures.append(SKTexture(imageNamed: "blueTank\(i)"))
         }
+        
+        // Create variable for help in properly animating players
         prevRedPos = playerRed.position
         prevBluePos = playerBlue.position
         
-       
-        
     }
     
-    
-    // This will be an effective wall for the players/bullets... it will have a physics body
+    /*
+     Create panel at bottom of screen to house scoreboard and controls
+     */
     func createBottomControlPanel(){
         let offWhite = CGFloat(255.0/255.0)
         bottomControlPanel = SKSpriteNode(color: .white, size: CGSize(width: self.frame.width, height: bottomControlPanelHeight))
-        bottomControlPanel.name = "BottomControlPanel"
+        bottomControlPanel.name = "bottomControlPanel"
         bottomControlPanel.anchorPoint = .zero
         bottomControlPanel.color = UIColor(red: offWhite, green: offWhite, blue: offWhite, alpha: 1.0)
         bottomControlPanel.zPosition = 2.0
-        // Set position of each ground to be i x width, so that they are horizontally stacked
         bottomControlPanel.position = CGPoint(x: 0.0, y:0.0)
     
         self.addChild(bottomControlPanel)
@@ -705,12 +720,15 @@ extension TankGameScene {
         createScoreboard()
     }
     
+    /*
+     Setup player controls and cooldown nodes
+     */
     func setupLaunchButtonsAndCooldown() {
         let offsetFromJoystick = 10.0
         let verticalOffset = 1.0
         let buttonScale = 0.5
         let buttonAlpha = 1.0
-//        redLaunchButton = SKSpriteNode(imageNamed: "bluePlayerLaunchButton")
+        
         redLaunchButton = SKSpriteNode(imageNamed: "redButton")
         redLaunchButton.name = redLaunchMissileButtonNodeName
         redLaunchButton.zPosition = 81.0
@@ -745,25 +763,6 @@ extension TankGameScene {
 
         addChild(blueCooldownNode)
 
-//        redCooldownNode = SKShapeNode(rect: CGRect(x: 0.0, y: 0.0, width: originalCooldownNodeWidth, height: 10.0), cornerRadius: 5.0)
-//        redCooldownNode.fillColor = darkRedColor
-//        redCooldownNode.strokeColor = .black
-//        redCooldownNode.name = redCooldownNodeName
-//        redCooldownNode.zPosition = 81.0
-//        redCooldownNode.position = CGPoint(x: redLaunchButton.position.x,
-//                                           y: redLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
-//
-//        addChild(redCooldownNode)
-//
-//        blueCooldownNode = SKShapeNode(rect: CGRect(x: 0.0, y: 0.0, width: originalCooldownNodeWidth, height: 10.0), cornerRadius: 5.0)
-//        blueCooldownNode.fillColor = darkBlueColor
-//        blueCooldownNode.strokeColor = .black
-//        blueCooldownNode.name = blueCooldownNodeName
-//        blueCooldownNode.zPosition = 81.0
-//        blueCooldownNode.position = CGPoint(x: blueLaunchButton.position.x,
-//                                           y: blueLaunchButton.position.y - redLaunchButton.frame.height/2.0 - redCooldownNode.frame.height/2.0 - verticalOffset)
-//
-//        addChild(blueCooldownNode)
         
         redPowerupDurationNode = SKSpriteNode(color: powerupCooldownNodeColor, size: CGSize(width: originalCooldownNodeWidth, height: 10.0))
         redPowerupDurationNode.name = redPowerupDurationNodeName
@@ -780,10 +779,11 @@ extension TankGameScene {
         
     }
     
-    // Create Powerups - Spawn them in defined range in middle of map
+    /*
+     Configure powerups and populate spawning array
+     */
+    
     func setupPowerups(){
-        let width = 15.0
-        let height = 15.0
         let scaleFactor = 0.7
         // Specify possible powerups positions
         possiblePowerupPositions = [CGPoint(x: frame.midX, y: frame.midY),
@@ -822,7 +822,7 @@ extension TankGameScene {
         randomBombNode.name = randomBombNodeName
         randomBombNode.zPosition = 5.0
         randomBombNode.setScale(scaleFactor)
-//        randomBombNode.physicsBody = SKPhysicsBody(circleOfRadius: randomBombNode.frame.width/4.0).ideal().manualMovement()
+        
         let randomBombNodeScaledSize = CGSize(width: randomBombNode.texture!.size().width * scaleFactor,
                                           height: randomBombNode.texture!.size().height * scaleFactor)
         randomBombNode.physicsBody = SKPhysicsBody(texture: randomBombNode.texture!, size: randomBombNodeScaledSize).ideal().manualMovement()
@@ -834,6 +834,7 @@ extension TankGameScene {
         possiblePowerups.append(jSONFireNode)
         possiblePowerups.append(randomBombNode)
         
+        // Setup loop to infinitely spawn powerups
         let powerupRepeaterAction = SKAction.repeatForever(.sequence([
             .wait(forDuration: powerupDefaultDespawnTime),
             .run {
@@ -844,6 +845,9 @@ extension TankGameScene {
         
     }
     
+    /*
+     Function to pick random powerup and spawn in one of a few specified locations around the map
+     */
     func spawnRandomPowerup(){
         let timeBetweenMovement = 0.2
         if let powerup = activePowerup{
@@ -857,6 +861,7 @@ extension TankGameScene {
         if let spawn = self.possiblePowerupPositions.randomElement(), let powerup = self.possiblePowerups.randomElement(){
             powerup.position = spawn
             activePowerup = powerup
+            // Have powerups bounce infinitely
             powerup.run(.repeatForever(.sequence([
                 .wait(forDuration: timeBetweenMovement),
                 .run {powerup.position.y += 1.0},
@@ -873,7 +878,8 @@ extension TankGameScene {
             ])))
             
             self.addChild(powerup)
-                    
+            
+            // Create shadow node for powerup
             powerupShadowNode = SKShapeNode(circleOfRadius: powerup.frame.width/2.0)
             powerupShadowNode.fillColor = .black
             powerupShadowNode.strokeColor = .black
@@ -889,11 +895,9 @@ extension TankGameScene {
         
     }
     
-    // Create an individual bullet with a position and a velocity and physics body
-    // Many bullets can exist at a time
-    // Player should check for collision with any bullet
-    
-    // May need to store bullets in a vector just like walls...
+    /*
+     Create an infinite JSON missile
+     */
     func createJSON(positionAt position: CGPoint, withVelocity velocity: CGVector){
         //TODO: Comeback and handle velocity
         let json = missileNode(imageNamed: "JSON_Missile1", maxCollisions: self.jSONMaxCollisions, velocity: 0.0)
@@ -917,11 +921,12 @@ extension TankGameScene {
         json.run(.repeatForever(.animate(with: jsonTextures, timePerFrame: 0.08)))
     }
     
+    /*
+     Create missile
+     */
     func createMissile(positionAt position: CGPoint, withVelocity velocity: CGVector){
         
         let missile = missileNode(imageNamed: "missile1", maxCollisions: self.missileStandardMaxCollisions, velocity: 0.0)
-//        let missile = missileNode(imageNamed: "JSON1", maxCollisions: self.missileStandardMaxCollisions, velocity: 0.0)
-
         missile.position = position
         missile.setScale(1.0)
         missile.physicsBody = SKPhysicsBody(circleOfRadius: missileRadius).ideal()
@@ -942,7 +947,9 @@ extension TankGameScene {
         
     }
     
-    
+    /*
+     Create scoreboard node in bottom panel
+     */
     func createScoreboard(){
         let middleOffset = 30.0
         redScoreNode = SKLabelNode(fontNamed: "AmericanTypewriter")
@@ -973,10 +980,12 @@ extension TankGameScene {
         dashNode.position = CGPoint(x: bottomControlPanel.frame.width/2.0 , y: bottomControlPanel.frame.height/2.0)
         
         self.addChild(dashNode)
-        
-    
+  
     }
     
+    /*
+     Create pause button
+     */
     func createPauseButton(){
         pauseButtonNode = SKSpriteNode(imageNamed: "pause")
         pauseButtonNode.setScale(0.08)
@@ -986,6 +995,9 @@ extension TankGameScene {
         self.addChild(pauseButtonNode)
     }
     
+    /*
+     Create pause panel when pause button pushed
+     */
     func createPausePanel(){
         let menuScale = 0.08
         
@@ -998,7 +1010,7 @@ extension TankGameScene {
         pauseContainerNode.addChild(pauseGamePanel)
         
         let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
-        pauseGamePanelTitle.text = "Game Paused" // this logic is filler, need two player scores
+        pauseGamePanelTitle.text = "Game Paused"
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 30
         pauseGamePanelTitle.fontColor = SKColor.white
@@ -1031,6 +1043,9 @@ extension TankGameScene {
         pauseGamePanel.addChild(resumeButton)
     }
     
+    /*
+     Create post game menu when game is over
+     */
     func createPostGamePanel(){
         let menuScale = 0.2
         
@@ -1042,8 +1057,18 @@ extension TankGameScene {
         postGamePanel.zPosition = 60.0
         postGameContainerNode.addChild(postGamePanel)
         
+        var result = ""
+        if (self.playerRed.lives == self.playerBlue.lives){
+            result = "Everyone Loses!"
+        } else if (self.playerRed.lives > self.playerBlue.lives){
+            result = "Red Wins!"
+        } else {
+            result = "Blue Wins!"
+        }
+        
+        
         let postGamePanelTitle = SKLabelNode(fontNamed: "AmericanTypewriter")
-        postGamePanelTitle.text = "Game Over: \(self.playerRed.lives > 0 ? "Red" : "Blue") Wins!" // this logic is filler, need two player scores
+        postGamePanelTitle.text = "Game Over: \(result)"
         postGamePanelTitle.zPosition = 80.0
         postGamePanelTitle.fontSize = 30
         postGamePanelTitle.fontColor = SKColor.white
@@ -1067,6 +1092,9 @@ extension TankGameScene {
         postGamePanel.addChild(quitButton)
     }
     
+    /*
+     Create explosion with given conditions
+     */
     func createExplosion(position: CGPoint, scale: CGFloat, timePerFrame: CGFloat) {
         let explosionNode = SKSpriteNode(imageNamed: "Explosion_1")
         explosionNode.name = "ExplosionNode"
@@ -1082,6 +1110,9 @@ extension TankGameScene {
         explosionNode.run(.sequence([.animate(with: explosionTextures, timePerFrame: timePerFrame), .removeFromParent()]))
     }
     
+    /*
+     Reset some game state on a player hit
+     */
     func resetOnHit(){
         playerRed.canFire = true
         playerBlue.canFire = true
@@ -1112,10 +1143,11 @@ extension TankGameScene {
         playerRed.fireMode = Powerups.SingleFire
     }
     
+    /*
+     Reset player to start positions
+     */
     func resetPositions(){
-        let startPositionOffsetX = 20.0 +  boundaryWidth
-        let startPositionOffsetY = 45.0 + boundaryWidth
-        
+    
         if !isGameOver{
             
             for missile in missiles {
@@ -1139,6 +1171,10 @@ extension TankGameScene {
         }
     }
     
+    /*
+     Add a powerup duration for a player to track
+     how much longer a powerup is active for
+     */
     func addPowerupDurationNodeForPlayer(player: playerNode){
         if player.playerColor == playerRed.playerColor{
             // If node is already a child of self
@@ -1155,6 +1191,9 @@ extension TankGameScene {
         }
     }
     
+    /*
+     Explode a bomb that spawns from the bomb powerup
+     */
     func explodeBombNode(bombNode: SKSpriteNode){
         bombNode.removeAllActions()
 
@@ -1194,6 +1233,8 @@ extension TankGameScene {
     }
     
     func spawnBombNode(player: playerNode){
+        
+        // Make sure bomb spawns close to enemy and in bounds
         let minOffset  = 40.0
         let maxOffset = 70.0
         let minWallOffset = 5.0
@@ -1207,19 +1248,19 @@ extension TankGameScene {
         let xDirection = CGFloat(Double.random(in: -1...1) <= 0 ? -1 : 1)
         let yDirection = CGFloat(Double.random(in: -1...1) <= 0 ? -1 : 1)
 
-        if (xPos + (xo * xDirection) >= (frame.width - boundaryWidth - minOffset)){
-            xPos = frame.width - boundaryWidth - (minOffset * 2.0)
+        if (xPos + (xo * xDirection) >= (frame.width - boundaryWidth - minWallOffset)){
+            xPos = frame.width - boundaryWidth - (minWallOffset * 2.0)
         }
-        else if (xPos + (xo * xDirection) <= (0.0 + boundaryWidth + minOffset)){
-            xPos = 0.0 + boundaryWidth + (minOffset * 2.0)
+        else if (xPos + (xo * xDirection) <= (0.0 + boundaryWidth + minWallOffset)){
+            xPos = 0.0 + boundaryWidth + (minWallOffset * 2.0)
         } else {
             xPos = xPos + (xo * xDirection)
         }
 
-        if (yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minOffset)){
-            yPos = frame.height - boundaryWidth - (minOffset * 2.0)
-        } else if (yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minOffset + bottomControlPanelHeight)){
-            yPos = 0.0 + boundaryWidth + (minOffset * 2.0)
+        if (yPos + (yo * yDirection) >= (frame.height - boundaryWidth - minWallOffset)){
+            yPos = frame.height - boundaryWidth - (minWallOffset * 2.0)
+        } else if (yPos + (yo * yDirection) <= (0.0 + boundaryWidth + minWallOffset + bottomControlPanelHeight)){
+            yPos = 0.0 + boundaryWidth + (minWallOffset * 2.0)
         } else {
             yPos = yPos + (yo * yDirection)
         }
@@ -1238,10 +1279,7 @@ extension TankGameScene {
         bombNode.physicsBody!.categoryBitMask = TankGamePhysicsCategory.Bomb
         bombNode.physicsBody!.contactTestBitMask = TankGamePhysicsCategory.Missile | TankGamePhysicsCategory.Player
         
-        // Get Random Position for Bomb
         bombNode.position = CGPoint(x: CGFloat(xPos), y: CGFloat(yPos))
-//        bombNode.position = CGPoint(x: frame.midX, y: frame.midY)
-
         
         addChild(bombNode)
         
@@ -1264,7 +1302,9 @@ extension TankGameScene {
 //MARK: - SKPhysicsContactDelegate
 extension TankGameScene: SKPhysicsContactDelegate {
     
-    
+    /*
+     Helper function for when a player and a powerup come into contact
+     */
     func handlePoweupPlayerContact(player: playerNode, powerup: SKSpriteNode) {
         
         switch powerup.name {
@@ -1350,6 +1390,7 @@ extension TankGameScene: SKPhysicsContactDelegate {
         powerupShadowNode.removeFromParent()
         self.activePowerup = nil
     }
+    
     // Handle collisions for each player and bullets and respond appropriately... maybe bullets will just bounce appropriately if no gravity?
     func didBegin(_ contact: SKPhysicsContact) {
         let A = contact.bodyA.categoryBitMask
