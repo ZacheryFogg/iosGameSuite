@@ -4,7 +4,6 @@
 //
 //  Created by Clayton Chisholm on 11/20/21.
 //
-
 import SpriteKit
 import GameplayKit
 
@@ -123,15 +122,17 @@ class AHGameScene: SKScene {
         let node = atPoint(touch.location(in: self))
         
         // Buttons in pause menu
-        if node.name == pauseButtonNodeName{
+        if node.name == pauseButtonNodeName {
+            
             if isPaused {
                 isPaused = false
                 pauseContainerNode.removeFromParent()
+            } else {
+                createPausePanel()
+                lastUpdateTime = 0.0
+                dt = 0.0
+                isPaused = true
             }
-            createPausePanel()
-            lastUpdateTime = 0.0
-            dt = 0.0
-            isPaused = true
             
         } else if node.name == resumeButtonNodeName {
             pauseContainerNode.removeFromParent()
@@ -417,7 +418,7 @@ class AHGameScene: SKScene {
             createPostGamePanel()
             isPaused = true
         }else{
-        //launch puck 
+        //launch puck
         puck.position = CGPoint(x: -100, y: 0)
         puck.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 20))
         }

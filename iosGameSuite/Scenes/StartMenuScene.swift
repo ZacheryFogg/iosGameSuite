@@ -4,18 +4,16 @@
 //
 //  Created by Zach Fogg on 10/19/21.
 //
-
 import SpriteKit
 
 class ButtonNode: SKSpriteNode {} // creating a class for ButtonNode will allow us to type check later... maybe
-
 class MenuScene: SKScene {
     
     //MARK: - Properties
 //    let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
     let DemoGame = ButtonNode(imageNamed: "jSONGameIcon")
-    let ClayGame = ButtonNode(imageNamed: "hockeyGameIcon")
+    let ClayGame = ButtonNode(imageNamed: "puck_icon")
     let TankGame = ButtonNode(imageNamed: "blueTankIcon")
     let SnakeGame = ButtonNode(imageNamed: "snakeGameIcon")
     
@@ -114,10 +112,7 @@ class MenuScene: SKScene {
             gameScene = TankGameScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
         case SnakeGame.name:
-//            gameScene = SnakeGameScene(size: CGSize(width: self.size.width * 3, height: self.size.height * 3))
-            gameScene = SnakeGameScene(size: self.size)
-            gameScene.scaleMode = SKSceneScaleMode.fill
-            
+            gameScene = SnakeGameScene(size: CGSize(width: self.size.width * 3, height: self.size.height * 3))
         default:
             return
         }
@@ -126,5 +121,3 @@ class MenuScene: SKScene {
         
     }
 }
-
-

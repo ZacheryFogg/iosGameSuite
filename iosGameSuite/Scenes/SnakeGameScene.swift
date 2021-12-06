@@ -142,12 +142,17 @@ class SnakeGameScene: SKScene {
         let node = atPoint(touch.location(in: self))
         
         // Buttons in pause menu
-        if node.name == pauseButtonNodeName{
-            if isPaused { return }
-            createPausePanel()
-            lastUpdateTime = 0.0
-            dt = 0.0
-            isPaused = true
+        if node.name == pauseButtonNodeName {
+            
+            if isPaused {
+                isPaused = false
+                pauseContainerNode.removeFromParent()
+            } else {
+                createPausePanel()
+                lastUpdateTime = 0.0
+                dt = 0.0
+                isPaused = true
+            }
             
         } else if node.name == resumeButtonNodeName {
             pauseContainerNode.removeFromParent()
@@ -544,76 +549,7 @@ extension SnakeGameScene {
 
     }
     
-//    func createPausePanel(){
-//        cameraNode.addChild(pauseContainerNode)
-//
-//        let pausePanel = SKSpriteNode(imageNamed: "panel")
-//        pausePanel.zPosition = 60.0
-//        pausePanel.position = .zero
-//        pauseContainerNode.addChild(pausePanel)
-//
-//        let resumeButton = SKSpriteNode(imageNamed: "resume")
-//        resumeButton.zPosition = 70.0
-//        resumeButton.name = resumeButtonNodeName
-//        resumeButton.setScale(0.35)
-//        resumeButton.position = CGPoint(x: -pausePanel.frame.width/2.0 + resumeButton.frame.width * 1.1, y: 0.0)
-//        pausePanel.addChild(resumeButton)
-//
-//        let quitButton = SKSpriteNode(imageNamed: "back")
-//        quitButton.zPosition = 70.0
-//        quitButton.name = quitFromPauseButtonNodeName
-//        quitButton.setScale(0.35)
-//        quitButton.position = CGPoint(x: pausePanel.frame.width/2.0 - quitButton.frame.width * 1.1, y: 0.0)
-//        pausePanel.addChild(quitButton)
-//
-//    }
-//
-//    func createPostGamePanel(){
-//        cameraNode.addChild(postGameContainerNode)
-//
-//        // Image will need to change for all of these
-//        let postGamePanel = SKSpriteNode(imageNamed: "panel")
-//        postGamePanel.zPosition = 60.0
-////        postGamePanel.setScale(2.0)
-//        postGamePanel.position = .zero // middle of screen I think
-//        postGameContainerNode.addChild(postGamePanel)
-//
-//        let postGamePanelTitle = SKLabelNode(fontNamed: "rimouski sb")
-//        if collidedBlue && collidedRed {
-//            postGamePanelTitle.text = "Game Over: Draw Game"
-//        } else if collidedBlue {
-//            postGamePanelTitle.text = "Game Over: Red Wins!"
-//        } else if collidedRed {
-//            postGamePanelTitle.text = "Game Over: Blue Wins!"
-//        }
-//        postGamePanelTitle.fontSize = 70
-//        postGamePanelTitle.fontColor = SKColor.white
-//        postGamePanelTitle.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 50)
-//        postGamePanel.addChild(postGamePanelTitle)
-//
-//        let postGamePanelMessage = SKLabelNode(fontNamed: "rimouski sb")
-////        postGamePanelMessage.text = "\(snakeRed.count) - \(snakeBlue.count)"
-//        postGamePanelMessage.fontSize = 60
-//        postGamePanelMessage.fontColor = SKColor.white
-//        postGamePanelMessage.position = CGPoint(x: postGamePanel.frame.midX, y: postGamePanel.frame.height/2.0 + 5)
-//        postGamePanel.addChild(postGamePanelMessage)
-//
-//        let replayButton = SKSpriteNode(imageNamed: "replay")
-//        replayButton.zPosition = 70.0
-//        replayButton.name = replayButtonNodeName
-//        replayButton.setScale(0.35)
-//        replayButton.position = CGPoint(x: -postGamePanel.frame.width/2.0 + replayButton.frame.width * 1.1, y:0.0)
-//        postGamePanel.addChild(replayButton)
-//
-//        let quitButton = SKSpriteNode(imageNamed: "back")
-//        quitButton.zPosition = 70.0
-//        quitButton.name = quitFromPostButtonNodeName
-//        quitButton.setScale(0.35)
-//        quitButton.position = CGPoint(x: postGamePanel.frame.width/2.0 - quitButton.frame.width * 1.1, y: 0.0)
-//        postGamePanel.addChild(quitButton)
-//
-//
-//    }
+
     func createPauseButton(){
         pauseButtonNode = SKSpriteNode(imageNamed: "pause")
         pauseButtonNode.setScale(0.08 * 3)

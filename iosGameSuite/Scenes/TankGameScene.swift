@@ -241,12 +241,16 @@ class TankGameScene: SKScene {
             let node = atPoint(touch.location(in: self))
             
             if node.name == pauseButtonNodeName {
-                print("Pause Menu")
-                if isPaused { return }
-                createPausePanel()
-                lastUpdateTime = 0.0
-                dt = 0.0
-                isPaused = true
+                
+                if isPaused {
+                    isPaused = false
+                    pauseContainerNode.removeFromParent()
+                } else {
+                    createPausePanel()
+                    lastUpdateTime = 0.0
+                    dt = 0.0
+                    isPaused = true
+                }
                 
             } else if node.name == resumeButtonNodeName {
                 pauseContainerNode.removeFromParent()
