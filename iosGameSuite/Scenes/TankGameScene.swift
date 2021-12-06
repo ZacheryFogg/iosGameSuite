@@ -1005,7 +1005,8 @@ extension TankGameScene {
         self.addChild(pauseContainerNode)
         
         // Image will need to change for all of these
-        let pauseGamePanel = SKSpriteNode(color: .darkGray, size: CGSize(width: self.frame.width/2.0, height: self.frame.width/4.0))
+        let pauseGamePanel = SKSpriteNode(imageNamed: "panel")
+        pauseGamePanel.size = CGSize(width: self.frame.width/2.0, height: self.frame.width/4.0)
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         
@@ -1019,26 +1020,26 @@ extension TankGameScene {
         pauseGamePanel.addChild(pauseGamePanelTitle)
         
 
-        let replayButton = SKSpriteNode(imageNamed: "resume")
+        let replayButton = SKSpriteNode(imageNamed: "replay")
         replayButton.zPosition = 70.0
         replayButton.name = replayButtonNodeName
         replayButton.setScale(menuScale)
-        replayButton.position = CGPoint(x: pauseGamePanel.frame.midX - replayButton.frame.width, y:pauseGamePanel.frame.midY - 20.0)
+        replayButton.position = CGPoint(x: pauseGamePanel.frame.midX - (replayButton.frame.width * 1.4), y:pauseGamePanel.frame.midY - 20.0)
         pauseGamePanel.addChild(replayButton)
         
         let quitButton = SKSpriteNode(imageNamed: "back")
         quitButton.zPosition = 70.0
         quitButton.name = quitButtonNodeName
         quitButton.setScale(menuScale)
-        quitButton.position = CGPoint(x: pauseGamePanel.frame.midX + quitButton.frame.width , y: pauseGamePanel.frame.midY - 20.0)
+        quitButton.position = CGPoint(x: pauseGamePanel.frame.midX + (quitButton.frame.width * 1.4) , y: pauseGamePanel.frame.midY - 20.0)
         pauseGamePanel.addChild(quitButton)
         
         //TODO: Replace this obviously
-        let resumeButton = SKSpriteNode(imageNamed: "back")
-        resumeButton.zRotation = 3.14
+        let resumeButton = SKSpriteNode(imageNamed: "resume")
+//        resumeButton.zRotation = 3.14
         resumeButton.zPosition = 70.0
         resumeButton.name = resumeButtonNodeName
-        resumeButton.setScale(menuScale)
+        resumeButton.setScale(menuScale * 1.5)
         resumeButton.position = CGPoint(x: pauseGamePanel.frame.midX , y: pauseGamePanel.frame.midY - 20.0)
         pauseGamePanel.addChild(resumeButton)
     }
@@ -1053,7 +1054,8 @@ extension TankGameScene {
         self.addChild(postGameContainerNode)
         
         // Image will need to change for all of these
-        let postGamePanel = SKSpriteNode(color: .darkGray, size: CGSize(width: self.frame.width/2.0, height: self.frame.width/4.0))
+        let postGamePanel = SKSpriteNode(imageNamed: "panel")
+        postGamePanel.size = CGSize(width: self.frame.width/1.8, height: self.frame.width/4.0)
         postGamePanel.zPosition = 60.0
         postGameContainerNode.addChild(postGamePanel)
         
@@ -1077,17 +1079,17 @@ extension TankGameScene {
         postGamePanel.addChild(postGamePanelTitle)
         
 
-        let replayButton = SKSpriteNode(imageNamed: "resume")
+        let replayButton = SKSpriteNode(imageNamed: "replay")
         replayButton.zPosition = 70.0
         replayButton.name = replayButtonNodeName
-        replayButton.setScale(menuScale)
+        replayButton.setScale(menuScale * 0.56)
         replayButton.position = CGPoint(x: postGamePanel.frame.midX - replayButton.frame.width, y:postGamePanel.frame.midY - 20.0)
         postGamePanel.addChild(replayButton)
         
         let quitButton = SKSpriteNode(imageNamed: "back")
         quitButton.zPosition = 70.0
         quitButton.name = quitButtonNodeName
-        quitButton.setScale(menuScale)
+        quitButton.setScale(menuScale * 0.56)
         quitButton.position = CGPoint(x: postGamePanel.frame.midX + quitButton.frame.width , y: postGamePanel.frame.midY - 20.0)
         postGamePanel.addChild(quitButton)
     }

@@ -109,6 +109,7 @@ class MenuScene: SKScene {
         case ClayGame.name:
             gameScene = SKScene(fileNamed: "AHGameScene")!
             gameScene.scaleMode = .aspectFill
+//            gameScene.size = CGSize(width: self.size.width * 10, height: self.size.height * 10)
         case TankGame.name:
             gameScene = TankGameScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
