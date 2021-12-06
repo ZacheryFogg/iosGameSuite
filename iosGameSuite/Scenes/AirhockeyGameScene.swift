@@ -122,7 +122,10 @@ class AHGameScene: SKScene {
         
         // Buttons in pause menu
         if node.name == pauseButtonNodeName{
-            if isPaused { return }
+            if isPaused {
+                isPaused = false
+                pauseContainerNode.removeFromParent()
+            }
             createPausePanel()
             lastUpdateTime = 0.0
             dt = 0.0

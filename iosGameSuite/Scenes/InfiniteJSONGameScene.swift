@@ -37,14 +37,16 @@ class InfiniteJSONScene: SKScene {
         JSON.position = CGPoint(x:frame.midX, y:frame.midY)
         JSON2.position = CGPoint(x: frame.midX + 100, y: frame.midY + 100)
         
-        JSON.setScale(0.5)
-        JSON2.setScale(0.5)
+        JSON.setScale(1.0)
+        JSON2.setScale(1.0)
         
         //Physics
         
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame) // make frame of screen an immovable edge
         
         physicsWorld.gravity = CGVector(dx: 0.0, dy: -3.0) // change gravity of the world
+        
+        
         JSON.physicsBody = SKPhysicsBody(texture: JSON.texture!, size: JSON.texture!.size()) // add a physics body to JSON
         JSON.physicsBody!.restitution = 1.2 // JSON will bounce back with a lot of force
         JSON.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 5.0)))
@@ -86,20 +88,7 @@ class InfiniteJSONScene: SKScene {
     func updateScore(){
         score.text = String(playerOneScore) + " - " + String(playerTwoScore)
     }
-//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-////        texturedSpriteNode.run(SKAction.move(to: CGPoint(x: spriteNode.size.width, y: spriteNode.size.height), duration: 2.0 ))
-////        texturedSpriteNode.run(SKAction.move(to: CGPoint(x: spriteNode.size.width, y: spriteNode.size.height), duration: 2.0)) {
-////            self.texturedSpriteNode.position = CGPoint.zero
-////        }
-//        texturedSpriteNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0)))
-//
-//        if !blueNode.hasActions() {
-////            blueNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0)))
-//            blueNode.run(SKAction.group([SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 2.0), SKAction.scale(by: 0.9, duration: 2.0)]))
-//        } else {
-//            blueNode.removeAllActions()
-//        }
-//    }
+
 }
 
 

@@ -70,9 +70,7 @@
 		6FBBA1C2275DA526009A61A1 /* AirhockeyGameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirhockeyGameScene.swift; sourceTree = "<group>"; };
 		6FBBA1C4275DA535009A61A1 /* AHGameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AHGameScene.sks; sourceTree = "<group>"; };
 		6FBBA1C6275DA545009A61A1 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
-		6FE1E9062742996400C8AC12 /* rimouski sb.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "rimouski sb.otf"; sourceTree = "<group>"; };
 		6FE1E9092742999A00C8AC12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6FE1E90A27429A3800C8AC12 /* wheaton capitals.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "wheaton capitals.otf"; sourceTree = "<group>"; };
 		6FE1E90E2742CAE600C8AC12 /* CGPoint+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+Ext.swift"; sourceTree = "<group>"; };
 		6FE1E9102742DF4C00C8AC12 /* CGFloat+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Ext.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -204,27 +202,9 @@
 			isa = PBXGroup;
 			children = (
 				6FE1E9092742999A00C8AC12 /* Info.plist */,
-				6FE1E9082742998100C8AC12 /* Sounds */,
-				6FE1E9052742993D00C8AC12 /* Fonts */,
 				6FA955DB271C9EDF00E7527E /* Assets.xcassets */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		6FE1E9052742993D00C8AC12 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				6FE1E9062742996400C8AC12 /* rimouski sb.otf */,
-				6FE1E90A27429A3800C8AC12 /* wheaton capitals.otf */,
-			);
-			path = Fonts;
-			sourceTree = "<group>";
-		};
-		6FE1E9082742998100C8AC12 /* Sounds */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Sounds;
 			sourceTree = "<group>";
 		};
 		6FE1E90D2742CACC00C8AC12 /* Utilities */ = {
