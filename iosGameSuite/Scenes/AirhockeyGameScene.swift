@@ -182,7 +182,6 @@ class AHGameScene: SKScene {
             let location = touch.location(in: self)
             //player 1 vs. player 2 movement
             if location.x > 0{
-                //player2.run(SKAction.moveTo(y: location.y, duration: 0.2))
                 player2.run(SKAction.move(to: location, duration: 0.2))
             }
             if location.x < 0{
@@ -365,7 +364,6 @@ class AHGameScene: SKScene {
             //reset with no force
             puck.position = CGPoint(x: 0, y: 0)
             puck.physicsBody?.velocity = (CGVector(dx: 0, dy: 0))
-//            addScorePlayerOne()
             self.run(.sequence([
                 .wait(forDuration: 1.5),
                 .run { [weak self] in

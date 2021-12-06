@@ -13,6 +13,10 @@ import AVFoundation
 enum Powerups {
     case SingleFire, MultiFire, RapidFire, jSONFire
 }
+
+/*
+ Extending SKSpriteNode to allow a player nodes to track additional properties
+ */
 class playerNode : SKSpriteNode {
     
     var lives: Int!
@@ -53,7 +57,9 @@ class playerNode : SKSpriteNode {
     }
     
 }
-
+/*
+ Extending SKSpriteNode to allow a missile nodes to track additional properties
+ */
 class missileNode : SKSpriteNode{
     
     var remainingCollisions: Int!
@@ -98,7 +104,6 @@ class TankGameScene: SKScene {
     let darkBlueColor = UIColor(red: 3/255.0, green: 168/255.0, blue: 244/255.0, alpha: 1.0)
     let darkRedColor = UIColor(red: 202/255.0, green: 47/255.0, blue: 8/255.0, alpha: 1.0)
     
-    // Temp vars... until I flesh more stuff out
     let missileRadius: CGFloat = 5
     let boundaryWidth: CGFloat = 5
     let wallWidth: CGFloat = 10
@@ -106,7 +111,6 @@ class TankGameScene: SKScene {
     let bottomControlPanelHeight: CGFloat = 50.0
     var bottomControlPanel: SKSpriteNode!
     
-    // Each player is represented by a tank
     var playerRed: playerNode!
     var playerBlue: playerNode!
     
@@ -115,15 +119,12 @@ class TankGameScene: SKScene {
     var redScoreNode: SKLabelNode!
     var blueScoreNode: SKLabelNode!
     
-//    var redCooldownNode : SKShapeNode!
-//    var blueCooldownNode: SKShapeNode!
     var redCooldownNode : SKSpriteNode!
     var blueCooldownNode: SKSpriteNode!
     
     var redPowerupDurationNode: SKSpriteNode!
     var bluePowerupDurationNode: SKSpriteNode!
     
-//    var powerupShadowNode: SKSpriteNode!
     var powerupShadowNode: SKShapeNode!
     
     let powerupCooldownNodeColor = UIColor.purple
@@ -133,7 +134,6 @@ class TankGameScene: SKScene {
     
     var powerUp: SKSpriteNode! // TODO: Add multiple powerUp types
 
-        
     var walls: [SKShapeNode] = []
     
     let boundaryColor = UIColor.white
@@ -149,9 +149,7 @@ class TankGameScene: SKScene {
     
     var missiles: [missileNode] = []
     let missileStandardMaxCollisions: Int = 4
-    
-    var gameSpeedPerSecond: CGFloat = 100.0 // How fast do objects move
-    
+        
     var lastUpdateTime: TimeInterval = 0.0
     var dt: TimeInterval = 0.0
 
@@ -228,7 +226,6 @@ class TankGameScene: SKScene {
         
     }
     
-
     /*
      Handle touch events from users
      */
