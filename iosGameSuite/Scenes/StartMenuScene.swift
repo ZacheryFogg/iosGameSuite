@@ -10,7 +10,6 @@ class ButtonNode: SKSpriteNode {} // creating a class for ButtonNode will allow 
 class MenuScene: SKScene {
     
     //MARK: - Properties
-//    let gameTitleLabel = SKLabelNode(fontNamed: "American Typewriter")
     
     let DemoGame = ButtonNode(imageNamed: "jSONGameIcon")
     let ClayGame = ButtonNode(imageNamed: "puck_icon")
@@ -21,16 +20,8 @@ class MenuScene: SKScene {
     //MARK: - Systems
     override func didMove(to view: SKView) { // didMove() is called as soon as the scene appears on screen
         
-        // Configure Title
-//        gameTitleLabel.text = "Free Adicting iOS Andriod Game! Super Fun! For Boys! For Girls! Free! Download Today For Free"
-//        gameTitleLabel.fontSize = 35
-//        gameTitleLabel.numberOfLines = 2
-//        gameTitleLabel.preferredMaxLayoutWidth = self.frame.width * 0.9
-//        gameTitleLabel.fontColor = SKColor.cyan
-//        gameTitleLabel.position = CGPoint(x: frame.midX, y: frame.maxY - gameTitleLabel.frame.height)
         let background = SKSpriteNode(imageNamed: "startMenuBackground")
         background.name = "background"
-        // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
         background.anchorPoint = .zero
         background.position = CGPoint(x: 0.0, y: 0.0)
         background.zPosition = 1.0 // Make sure is appears behind other children
@@ -40,20 +31,12 @@ class MenuScene: SKScene {
         
         
         background2.name = "background2"
-        // Default anchor point of a node is in center of screen (.5,.5), we need it to be bottom left (0,0)
         background2.anchorPoint = .zero
         background2.position = CGPoint(x: 0.0, y: 0.0)
         background2.zPosition = 1.0 // Make sure is appears behind other children
         self.addChild(background2)
         
         
-//        self.addChild(gameTitleLabel)
-        
-        // Create 2 rows of 3 columns of button nodes
-        
-//        let button = ButtonNode(imageNamed: "DefaultGameIcon") // create throwaway button to calculate height and width
-//        let buttonW = button.frame.width
-//        let buttonH = button.frame.height
         DemoGame.name = "DemoGame"
         ClayGame.name = "ClayGame"
         TankGame.name = "TankGame"
@@ -101,13 +84,11 @@ class MenuScene: SKScene {
         switch node.name {
             
         case DemoGame.name:
-//            gameScene = DrunkFightGameScene(size: CGSize(width: 2048, height: 1536))
             gameScene = InfiniteJSONScene(size: self.size)
             gameScene.scaleMode = self.scaleMode
         case ClayGame.name:
             gameScene = SKScene(fileNamed: "AHGameScene")!
             gameScene.scaleMode = .aspectFill
-//            gameScene.size = CGSize(width: self.size.width * 10, height: self.size.height * 10)
         case TankGame.name:
             gameScene = TankGameScene(size: self.size)
             gameScene.scaleMode = self.scaleMode

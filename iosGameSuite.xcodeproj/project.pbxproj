@@ -26,6 +26,7 @@
 		6FBBA1C3275DA526009A61A1 /* AirhockeyGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FBBA1C2275DA526009A61A1 /* AirhockeyGameScene.swift */; };
 		6FBBA1C5275DA535009A61A1 /* AHGameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 6FBBA1C4275DA535009A61A1 /* AHGameScene.sks */; };
 		6FBBA1C7275DA545009A61A1 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 6FBBA1C6275DA545009A61A1 /* Actions.sks */; };
+		6FBBA1C9275DBD9F009A61A1 /* jSONAppIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6FBBA1C8275DBD9F009A61A1 /* jSONAppIcon.png */; };
 		6FE1E90F2742CAE600C8AC12 /* CGPoint+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE1E90E2742CAE600C8AC12 /* CGPoint+Ext.swift */; };
 		6FE1E9112742DF4C00C8AC12 /* CGFloat+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE1E9102742DF4C00C8AC12 /* CGFloat+Ext.swift */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,7 @@
 		6FBBA1C2275DA526009A61A1 /* AirhockeyGameScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AirhockeyGameScene.swift; sourceTree = "<group>"; };
 		6FBBA1C4275DA535009A61A1 /* AHGameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = AHGameScene.sks; sourceTree = "<group>"; };
 		6FBBA1C6275DA545009A61A1 /* Actions.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Actions.sks; sourceTree = "<group>"; };
+		6FBBA1C8275DBD9F009A61A1 /* jSONAppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jSONAppIcon.png; sourceTree = "<group>"; };
 		6FE1E9092742999A00C8AC12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6FE1E90E2742CAE600C8AC12 /* CGPoint+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+Ext.swift"; sourceTree = "<group>"; };
 		6FE1E9102742DF4C00C8AC12 /* CGFloat+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Ext.swift"; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				6FE1E9092742999A00C8AC12 /* Info.plist */,
+				6FBBA1C8275DBD9F009A61A1 /* jSONAppIcon.png */,
 				6FA955DB271C9EDF00E7527E /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -325,6 +328,7 @@
 			files = (
 				6FBBA1C5275DA535009A61A1 /* AHGameScene.sks in Resources */,
 				6FA955DA271C9EDE00E7527E /* Main.storyboard in Resources */,
+				6FBBA1C9275DBD9F009A61A1 /* jSONAppIcon.png in Resources */,
 				6FA955DC271C9EDF00E7527E /* Assets.xcassets in Resources */,
 				6FA955DF271C9EDF00E7527E /* LaunchScreen.storyboard in Resources */,
 				6FBBA1C7275DA545009A61A1 /* Actions.sks in Resources */,

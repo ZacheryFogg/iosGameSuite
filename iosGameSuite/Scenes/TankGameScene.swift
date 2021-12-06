@@ -1008,7 +1008,6 @@ extension TankGameScene {
         pauseContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0 + bottomControlPanelHeight/2.0)
         self.addChild(pauseContainerNode)
         
-        // Image will need to change for all of these
         let pauseGamePanel = SKSpriteNode(imageNamed: "panel")
         pauseGamePanel.size = CGSize(width: self.frame.width/2.0, height: self.frame.width/4.0)
         pauseGamePanel.zPosition = 60.0
@@ -1057,7 +1056,6 @@ extension TankGameScene {
         postGameContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0 + bottomControlPanelHeight/2.0)
         self.addChild(postGameContainerNode)
         
-        // Image will need to change for all of these
         let postGamePanel = SKSpriteNode(imageNamed: "panel")
         postGamePanel.size = CGSize(width: self.frame.width/1.8, height: self.frame.width/4.0)
         postGamePanel.zPosition = 60.0
