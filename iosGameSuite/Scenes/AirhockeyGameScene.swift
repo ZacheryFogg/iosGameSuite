@@ -224,7 +224,7 @@ class AHGameScene: SKScene {
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         //pause title
-        let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
+        let pauseGamePanelTitle = SKLabelNode(fontNamed: "American Typewriter")
         pauseGamePanelTitle.text = "Game Paused"
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 60
@@ -308,10 +308,8 @@ class AHGameScene: SKScene {
     func addScorePlayerOne(){
         //add score to player one
         scorePlayer1 = scorePlayer1 + 1
-        print(scorePlayer1)
         scorePlayer1Display.text = "\(scorePlayer1)"
         if scorePlayer1 == 5{
-            print("Player 1 win")
             createPostGamePanel()
             isPaused = true
         } else{
@@ -325,10 +323,8 @@ class AHGameScene: SKScene {
     func addScorePlayerTwo(){
         //add score to player two
         scorePlayer2 = scorePlayer2 + 1
-        print(scorePlayer2)
         scorePlayer2Display.text = "\(scorePlayer2)"
         if scorePlayer2 == 5{
-            print("player 2 win")
             createPostGamePanel()
             isPaused = true
         }else{

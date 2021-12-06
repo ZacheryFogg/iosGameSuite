@@ -252,7 +252,6 @@ class TankGameScene: SKScene {
             } else if node.name == resumeButtonNodeName {
                 pauseContainerNode.removeFromParent()
                 isPaused = false
-                print(isPaused)
             
             } else if node.name == quitButtonNodeName {
                 
@@ -890,10 +889,7 @@ extension TankGameScene {
             
             self.addChild(powerupShadowNode)
              
-        } else {
-            print("Emty Powerup or Position Array")
         }
-        
     }
     
     /*
@@ -1010,7 +1006,7 @@ extension TankGameScene {
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         
-        let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
+        let pauseGamePanelTitle = SKLabelNode(fontNamed: "American Typewriter")
         pauseGamePanelTitle.text = "Game Paused"
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 30
@@ -1329,7 +1325,6 @@ extension TankGameScene: SKPhysicsContactDelegate {
                     player.originalPowerupDuration = 0.0
                 }
             ])
-            print("activePowerupActionKey_\(player.playerColor!)")
             self.run(rapidFireAction, withKey: "activePowerupActionKey_\(player.playerColor!)")
             
             
@@ -1384,7 +1379,6 @@ extension TankGameScene: SKPhysicsContactDelegate {
         
         default:
             player.fireMode = Powerups.SingleFire
-            print("This will never happen... right?")
         }
         
         powerup.removeFromParent()

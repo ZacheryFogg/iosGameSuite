@@ -389,7 +389,6 @@ extension SnakeGameScene {
         // while invalid location
         var locationInvalid = true
         
-        print("minH: \(minHeight), maxH: \(maxHeight), minW: \(minWidth), maxW: \(maxWidth)")
         while locationInvalid {
             locationInvalid = false
             // put in playable rect
@@ -552,7 +551,7 @@ extension SnakeGameScene {
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         
-        let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
+        let pauseGamePanelTitle = SKLabelNode(fontNamed: "American Typewriter")
         pauseGamePanelTitle.text = "Game Paused"
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 30 * 3
