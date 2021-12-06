@@ -21,10 +21,6 @@ class SnakeGameScene: SKScene {
     var directionBlue = Direction.left
     var directionRed = Direction.right
     
-//    var directionBlue = Direction.down
-//    var directionRed = Direction.down
-
-    
     var pointPellets: [SKSpriteNode] = []
     
     //MARK: - Properties
@@ -79,9 +75,6 @@ class SnakeGameScene: SKScene {
     let downButtonRedNodeName: String = "downButtonRedNode"
     let leftButtonRedNodeName: String = "leftButtonRedNode"
     let rightButtonRedNodeName: String = "rightButtonRedNode"
-    
-//    var playableRect = CGSize(width: self.size.width, height: self.size.height)
-//    var playableRect: CGSize!
     
     var playableRect: CGRect {
         let ratio: CGFloat
@@ -239,7 +232,6 @@ extension SnakeGameScene {
         
         setupArrowButtons()
         
-//        setupPauseButton()
         createPauseButton()
         
         createCamera()
@@ -460,16 +452,6 @@ extension SnakeGameScene {
         cameraNode.position = CGPoint(x: playableRect.width/2, y: playableRect.height/2)//frame.midY)
     }
     
-//    func setupPauseButton(){
-//        pauseButtonNode = SKSpriteNode(imageNamed: "pause")
-//        pauseButtonNode.setScale(0.25)
-//        pauseButtonNode.zPosition = 50.0
-//        pauseButtonNode.name = pauseButtonNodeName
-//        pauseButtonNode.position = CGPoint(x: playableRect.width/2.0 - pauseButtonNode.frame.width/2.0 - 30.0,
-//                                     y: playableRect.height/2.0 - pauseButtonNode.frame.height/2.0 - 10.0)
-//        cameraNode.addChild(pauseButtonNode)
-//    }
-    
     func setupArrowButtons() {
         upButtonBlueNode = SKSpriteNode(imageNamed: "arrowButtonBlue")
         downButtonBlueNode = SKSpriteNode(imageNamed: "arrowButtonBlue")
@@ -562,17 +544,16 @@ extension SnakeGameScene {
     func createPausePanel(){
         let menuScale = 0.08 * 3
         
-        pauseContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0)// + bottomControlPanelHeight/2.0)
+        pauseContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0)
         self.addChild(pauseContainerNode)
         
-        // Image will need to change for all of these
         let pauseGamePanel = SKSpriteNode(imageNamed: "panel")
         pauseGamePanel.size = CGSize(width: self.frame.width/2.0, height: self.frame.width/4.0)
         pauseGamePanel.zPosition = 60.0
         pauseContainerNode.addChild(pauseGamePanel)
         
         let pauseGamePanelTitle = SKLabelNode(fontNamed: "")
-        pauseGamePanelTitle.text = "Game Paused" // this logic is filler, need two player scores
+        pauseGamePanelTitle.text = "Game Paused"
         pauseGamePanelTitle.zPosition = 80.0
         pauseGamePanelTitle.fontSize = 30 * 3
         pauseGamePanelTitle.fontColor = SKColor.white
@@ -595,9 +576,7 @@ extension SnakeGameScene {
         quitButton.position = CGPoint(x: pauseGamePanel.frame.midX + (quitButton.frame.width * 1.4) , y: pauseGamePanel.frame.midY - 20.0)
         pauseGamePanel.addChild(quitButton)
         
-        //TODO: Replace this obviously
         let resumeButton = SKSpriteNode(imageNamed: "resume")
-//        resumeButton.zRotation = 3.14
         resumeButton.zPosition = 70.0
         resumeButton.name = resumeButtonNodeName
         resumeButton.setScale(menuScale * 1.5)
@@ -608,17 +587,16 @@ extension SnakeGameScene {
     func createPostGamePanel(){
         let menuScale = 0.2 * 3
         
-        postGameContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0)// + bottomControlPanelHeight/2.0)
+        postGameContainerNode.position  = CGPoint(x: self.frame.width/2.0, y: self.frame.height/2.0)
         self.addChild(postGameContainerNode)
         
-        // Image will need to change for all of these
         let postGamePanel = SKSpriteNode(imageNamed: "panel")
         postGamePanel.size = CGSize(width: self.frame.width/1.8, height: self.frame.width/4.0)
         postGamePanel.zPosition = 60.0
         postGameContainerNode.addChild(postGamePanel)
         
         let postGamePanelTitle = SKLabelNode(fontNamed: "AmericanTypewriter")
-//        postGamePanelTitle.text = "Game Over: \(self.playerRed.lives > 0 ? "Red" : "Blue") Wins!" // this logic is filler, need two player scores
+
         if collidedBlue && collidedRed {
             postGamePanelTitle.text = "Game Over: Draw"
         } else if collidedBlue {
